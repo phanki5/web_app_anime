@@ -20,6 +20,7 @@ Mitglieder: Phan Khoa Nguyen, Steven Förster, Ömer Faruk Yildiz
 git clone https://github.com/phanki5/web_app_anime.git
 
 ```
+### Create venv
 
 ```bash
 
