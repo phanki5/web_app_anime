@@ -1,3 +1,13 @@
-# web_app_anime
+# TSM
 
-hier giibts nichts zu sehen
+Mitglieder: Phan Khoa Nguyen, Steven Förster, Ömer Faruk Yildiz
+
+
+
+## Documentation 
+[]
+
+## Getting started 
+
+
+### Clone Repo
