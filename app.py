@@ -5,6 +5,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
+import click
+from flask.cli import with_appcontext
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -19,6 +21,13 @@ login_manager.login_view = "login"
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+@app.cli.command('init-db')
+def init_db_command():
+    """Initialize the database."""
+    with app.app_context():
+        db.create_all()
+    click.echo('Database initialized!')
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -77,6 +86,8 @@ def register():
         db.session.commit()
         return redirect(url_for("login"))
     return render_template('register.html', form=form)
+
+
 
 if __name__ == "__main__":
     db.create_all()  # Ensure the database and tables are created

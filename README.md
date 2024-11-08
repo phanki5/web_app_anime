@@ -43,22 +43,10 @@ pip install -r requirements.txt
 
 In Terminal
 ```bash
-Python3
+Flas init-db
 
 ```
 
-```bash
->>> from your_app_file import db, app  
-```
-
-```bash
->>> with app.app_context():
-...     db.create_all()
-...
-```
-```bash
->>> exit()
-```
 
 ### Run AnimeHub
 
