@@ -5,11 +5,11 @@ nav_order: 0
 
 # AnimeMarketPlace
 
-Anime for every incel 
+Anime for every incel
 
 ## Team members
 
-**Stven Khoa Ngyuen, Steven Förster, Ömer Faruk**  
+**Steven Khoa Nguyen, Steven Förster, Ömer Faruk**  
 About: [GitHub](https://github.com/phanki5/web_app_anime)
 
 ## Eidesstattliche Erklärung
