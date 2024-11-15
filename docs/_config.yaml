@@ -1,9 +1,12 @@
 title: AnimeHub
+description: Documentation for AnimeHub
 remote_theme: just-the-docs/just-the-docs
 
+# Enable mermaid diagrams
 mermaid:
-  version: '10.5.0' # Pick version from https://cdn.jsdelivr.net/npm/mermaid/
+  version: '10.5.0'
 
+# Custom callout styles
 callouts:
   tip:
     title: 🤍 Tip
@@ -17,3 +20,18 @@ callouts:
   download:
     title: 💾 Download
     color: grey-dk
+
+# Navigation settings
+nav:
+  - Home: index.md
+  - Design Decisions: "Design Decisions/index.md"
+  - Technical Docs: "Technical Docs/index.md"
+  - User Evaluation: "User Evaluation/index.md"
+  - Value Proporsition: "Value Proporsition/index.md"
+  - Sources: "sources/index.md"
+
+# Enable search
+search_enabled: true
+
+# Enable anchor links
+heading_anchors: true
