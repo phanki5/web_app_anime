@@ -1,12 +1,25 @@
 title: AnimeHub
-description: Documentation for AnimeHub
+description: Anime for every incel
 remote_theme: just-the-docs/just-the-docs
+
+# Theme settings
+color_scheme: light
+search_enabled: true
+heading_anchors: true
+
+# External navigation links
+aux_links:
+  "AnimeHub on GitHub":
+    - "https://github.com/your-repo-link"
+
+# Footer content
+footer_content: "Copyright &copy; 2024 AnimeHub Team."
 
 # Enable mermaid diagrams
 mermaid:
   version: '10.5.0'
 
-# Custom callout styles
+# Custom callouts
 callouts:
   tip:
     title: 🤍 Tip
@@ -21,17 +34,11 @@ callouts:
     title: 💾 Download
     color: grey-dk
 
-# Navigation settings
+# Organize pages under sections
 nav:
-  - Home: index.md
-  - Design Decisions: "Design Decisions/index.md"
-  - Technical Docs: "Technical Docs/index.md"
-  - User Evaluation: "User Evaluation/index.md"
-  - Value Proporsition: "Value Proporsition/index.md"
-  - Sources: "sources/index.md"
-
-# Enable search
-search_enabled: true
-
-# Enable anchor links
-heading_anchors: true
+  - Home: "/"
+  - Design Decisions: "/design-decisions"
+  - Technical Docs: "/technical-docs"
+  - User Evaluation: "/user-evaluation"
+  - Value Proporsition: "/value-proporsition"
+  - Sources: "/sources"

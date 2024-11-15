@@ -1,16 +1,20 @@
 ---
-title: AnimeHub
-nav_order: 0
+layout: default
+title: AnimeMarketPlace
+nav_order: 1
+description: "Anime for every incel"
+permalink: /
 ---
 
 # AnimeMarketPlace
 
-Anime for every incel
+Anime for every incel!
 
 ## Team members
 
-**Steven Khoa Nguyen, Steven Förster, Ömer Faruk**  
-About: [GitHub](https://github.com/phanki5/web_app_anime)
+Steven Khoa Nguyen, Steven Förster, Ömer Faruk
+
+About: [GitHub](https://github.com/link-to-your-repo)
 
 ## Eidesstattliche Erklärung
 
