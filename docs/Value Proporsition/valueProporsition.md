@@ -1,3 +1,10 @@
+---
+layout: default
+title: Value Proposition
+nav_order: 1
+permalink: /value-proposition/
+---
+
 # Value proposition
 ## Table of Contents
 - The problem

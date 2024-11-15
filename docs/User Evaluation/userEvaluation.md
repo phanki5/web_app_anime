@@ -1,3 +1,10 @@
+---
+layout: default
+title: Value Proposition
+nav_order: 4
+permalink: /user-evaluation/
+---
+
 # User Evaluation
 ## Table of Contents
 - 01: Registration and Login

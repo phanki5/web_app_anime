@@ -1,3 +1,10 @@
+---
+layout: default
+title: Sources
+nav_order: 5
+permalink: /sources/
+---
+
 # Sources
 
 In this chapter, I will be disclosing all of my sources and LLM prompts.
