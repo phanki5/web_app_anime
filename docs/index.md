@@ -12,7 +12,7 @@ Anime for every incel!
 
 ## Team members
 
-Steven Khoa Nguyen, Steven Förster, Ömer Faruk
+Phan Khoa Nguyen, Steven Förster, Ömer Faruk
 
 About: [GitHub](https://github.com/link-to-your-repo)
 

@@ -1,8 +1,6 @@
 ---
-layout: default
 title: Value Proposition
-nav_order: 1
-permalink: /value-proposition/
+nav_order: 2
 ---
 
 # Value proposition
