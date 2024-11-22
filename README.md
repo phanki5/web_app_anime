@@ -26,7 +26,7 @@ git clone https://github.com/phanki5/web_app_anime.git
 
 python -m venv venv 
 source venv/bin/activate
-
+.\venv\Scripts\activate.bat #für windows
 
 ```
 
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 In Terminal
 ```bash
-Flas init-db
+Flask init-db
 
 ```
 
