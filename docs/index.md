@@ -2,7 +2,7 @@
 layout: default
 title: AnimeMarketPlace
 nav_order: 0
-description: "Anime for every incel"
+description: "Anime for everyone"
 permalink: /
 ---
 
