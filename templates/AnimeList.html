@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AnimeList</title>
+</head>
+<body>
+    
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    <h2>Anime List</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nr.</th>
+                <th>Titel</th>
+                <th>releasedate</th>
+                <th>Score</th>
+                <th>summary</summary></th>
+                <th>Category</th>
+                <th>Genres</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for anime in animes %}
+            <tr>
+                <td>{{ anime.anime_id }}</td>            
+                <td>{{ anime.titel }}</td>
+                <td>{{ anime.releasedate }}</td>
+                <td>{{ anime.score }}</td>
+                <td>{{ anime.summary }}</td>
+                <td>{{ anime.Category }}</td>
+                <td> {% for genre in anime.genres %} {{ genre.name }}{% if not loop.last %}, {% endif %} {% endfor %} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>
