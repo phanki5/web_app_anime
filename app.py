@@ -62,6 +62,21 @@ def create_app():
         animes = AnimeList.query.all()
         return render_template('animelist.html', animes=animes)
     
+    @app.route('/marketplace')
+    @login_required
+    def marketplace():
+        return render_template('marketplace.html')
+    
+    @app.route('/settings')
+    @login_required
+    def settings():
+        return render_template('settings.html')
+    
+    @app.route('/reset_password')
+    @login_required
+    def reset_password():
+        return render_template('reset_password.html')
+    
     @app.route('/logout', methods=['GET', 'POST'])
     @login_required
     def logout():
