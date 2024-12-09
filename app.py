@@ -3,7 +3,9 @@ from flask_login import LoginManager, login_user, login_required, logout_user
 from flask_bcrypt import Bcrypt
 import click
 from flask.cli import with_appcontext
-from db import db, User, RegisterForm, LoginForm
+from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, add_initial_anime_data
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -26,7 +28,8 @@ def create_app():
         """Initialize the database."""
         with app.app_context():
             db.create_all()
-        click.echo('Database initialized!')
+            add_initial_anime_data(app)
+        click.echo('Database initialized! and Data added')
     
     @app.route('/')
     def index():
@@ -48,7 +51,31 @@ def create_app():
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        return render_template('dashboard.html')
+    # Alle Anime laden
+        animes = AnimeList.query.all()
+        return render_template('dashboard.html', animes=animes)
+
+    @app.route('/animelist')
+    @login_required
+    def animelist():
+    # Alle Anime laden
+        animes = AnimeList.query.all()
+        return render_template('animelist.html', animes=animes)
+    
+    @app.route('/marketplace')
+    @login_required
+    def marketplace():
+        return render_template('marketplace.html')
+    
+    @app.route('/settings')
+    @login_required
+    def settings():
+        return render_template('settings.html')
+    
+    @app.route('/reset_password')
+    @login_required
+    def reset_password():
+        return render_template('reset_password.html')
     
     @app.route('/logout', methods=['GET', 'POST'])
     @login_required
