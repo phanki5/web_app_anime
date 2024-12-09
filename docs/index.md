@@ -8,7 +8,7 @@ permalink: /
 
 # AnimeMarketPlace
 
-Anime for every incel!
+Anime for everyone
 
 ## Team members
 
