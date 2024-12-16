@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)  # AdminACC
+    is_banned = db.Column(db.Boolean, default=False) # Ban
 
 class RegisterForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], 

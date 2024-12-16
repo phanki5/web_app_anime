@@ -24,3 +24,5 @@ In this chapter, I will be disclosing all of my sources and LLM prompts.
 Frontend
 2. [https://chatgpt.com/c/676068e9-5e5c-8012-babc-8652a0cfa316]
 Admin Account logik 
+3. [https://chatgpt.com/c/67609a89-f804-8012-94e2-11f2c3117c3f]
+Sortierungs Logik + Frontend Animelist mit Tailwind

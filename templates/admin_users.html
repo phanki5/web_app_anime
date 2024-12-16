@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Manage Users</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <h1 class="text-2xl font-bold mb-4">Manage Users</h1>
+  <table class="table-auto w-full bg-white rounded shadow">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="px-4 py-2">ID</th>
+        <th class="px-4 py-2">Username</th>
+        <th class="px-4 py-2">Admin?</th>
+        <th class="px-4 py-2">Banned?</th>
+        <th class="px-4 py-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr class="border-b">
+        <td class="px-4 py-2">{{ user.id }}</td>
+        <td class="px-4 py-2">{{ user.username }}</td>
+        <td class="px-4 py-2">
+          {% if user.is_admin %}
+            <span class="text-green-600 font-semibold">Yes</span>
+          {% else %}
+            No
+          {% endif %}
+        </td>
+        <td class="px-4 py-2">
+          {% if user.is_banned %}
+            <span class="text-red-600 font-semibold">Banned</span>
+          {% else %}
+            <span class="text-green-600">Active</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 space-x-2">
+          <!-- Reset Password Link -->
+          <a href="{{ url_for('admin_reset_user_password', user_id=user.id) }}" 
+             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">
+            Reset PW
+          </a>
+          
+          <!-- Ban/Unban Button (POST) -->
+          <form action="{{ url_for('admin_ban_user', user_id=user.id) }}" method="POST" class="inline">
+            {% if user.is_banned %}
+              <input type="hidden" name="action" value="unban">
+              <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
+                Unban
+              </button>
+            {% else %}
+              <input type="hidden" name="action" value="ban">
+              <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                Ban
+              </button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

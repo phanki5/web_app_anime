@@ -1,4 +1,3 @@
-
 ---
 layout: default
 title: Ömers Technical Docs
@@ -7,6 +6,8 @@ nav_order: 2
 ---
 
 # Ömers Technical Docs
+
+(Erstellt am 16.12.2024, 23:15 Uhr)
 
 Hier sind die technischen Dokumentationen von **Ömer**.
 
@@ -24,63 +25,66 @@ Hier sind die technischen Dokumentationen von **Ömer**.
     - [Login-Route](#login-route)
     - [Register-Route](#register-route)
   - [Authentifizierung und Autorisierung](#authentifizierung-und-autorisierung)
+  - [Ban-Funktion \& is\_banned-Spalte](#ban-funktion--is_banned-spalte)
 
 ---
 
 ## Einleitung
 
-Diese Seite enthält die technischen Details, die von Ömer erstellt wurden.
+Diese Seite enthält die technischen Details, die von Ömer erstellt wurden.  
+Alle Beispiele beziehen sich auf eine Flask-Applikation mit SQLAlchemy, Flask-Login und WTForms.
 
 ---
 
 ## Aufbau der Datenbank
 
-Die Datenbankstruktur wurde wie folgt modelliert:
+Die Datenbankstruktur wurde wie folgt modelliert (Beispiel):
 
 ```python
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False)     # Admin-Flag
+    is_banned = db.Column(db.Boolean, default=False)    # Ban-Flag
 
 class AnimeList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), unique=True, nullable=False)
-    genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    # evtl. foreign keys oder viele-zu-viele genre-relationen
+    # Genre-FKs oder M2M mit Genre
 
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
-    animes = db.relationship('AnimeList', backref='genre', lazy=True)
+    # Bei Many-to-One: animes = db.relationship('AnimeList', backref='genre', lazy=True)
 ```
 
 ### Datenbankdiagramm
 
-Ein visuelles Diagramm für die Datenbankstruktur:
-
 ```
 User
 +---------+--------------------+
-| id      | Primary Key        |
+| id      | PK                 |
 | username| Unique, Not Null   |
 | password| Not Null           |
 | is_admin| Boolean (Default)  |
+| is_banned| Boolean (Default) |
 +---------+--------------------+
 
 Genre
 +---------+--------------------+
-| id      | Primary Key        |
+| id      | PK                 |
 | name    | Unique, Not Null   |
 +---------+--------------------+
 
 AnimeList
 +---------+--------------------+
-| id      | Primary Key        |
+| id      | PK                 |
 | title   | Unique, Not Null   |
-| genre_id| Foreign Key -> Genre.id |
-| description | Optional       |
+| description | Optional        |
+| ... evtl. genre_id, etc.     |
 +---------+--------------------+
 ```
 
@@ -88,20 +92,17 @@ AnimeList
 
 ## Login und Register-Funktion
 
-Die Login- und Register-Funktionen wurden mit **WTForms** implementiert und ermöglichen die Benutzerauthentifizierung.
+Die Login- und Register-Funktionen wurden mit **WTForms** implementiert und ermöglichen die Benutzerauthentifizierung via Flask-Login.
 
 ### Wie erstellt man ein Admin Account
 
-Admin-Command verwenden
-In deinem Code gibt es ein Flask-CLI-Kommando, um einen Admin-Benutzer zu erstellen. Verwende diesen Befehl im Terminal:
+Wir haben ein Flask-CLI-Kommando definiert, um einen Admin-Benutzer zu erstellen. Beispiel:
 
-bash
-Code kopieren
+```
 flask create-admin <username> <password>
-Ersetze <username> und <password> durch deinen gewünschten Benutzernamen und dein Passwort. Beispiel:
+```
 
-bash
-flask create-admin Admin securepassword
+Das erstellt (oder überschreibt nicht existierende) Benutzer mit `is_admin=True`.
 
 ### LoginForm
 
@@ -139,6 +140,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
+            # Ban-Check
+            if user.is_banned:
+                return render_template('login.html', form=form, error='This account is banned.')
             login_user(user)
             return redirect(url_for('dashboard'))
         else:
@@ -165,12 +169,41 @@ def register():
 
 ## Authentifizierung und Autorisierung
 
-Zusätzliche Sicherheitsmaßnahmen wurden implementiert, um den Zugriff auf bestimmte Seiten zu kontrollieren:
+Zusätzliche Sicherheitsmaßnahmen, um Seitenzugriff zu kontrollieren:
 
-1. **Login Required**: Schützt Routen vor unbefugtem Zugriff.
-2. **Admin-Berechtigung**: Nur Admin-Benutzer haben Zugriff auf bestimmte Seiten.
+1. **Flask-Login** – Der Decorator `@login_required` schützt sensible Routen.  
+2. **Admin-Berechtigung** – Nur `current_user.is_admin` darf bestimmte Views aufrufen. Beispiel:
+
+```python
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        return "Zugriff verweigert", 403
+    users = User.query.all()
+    return render_template('admin_users.html', users=users)
+```
 
 ---
-Eintrag wurde am 16.12.2024 gemacht
 
+## Ban-Funktion & is_banned-Spalte
 
+```bash
+# Datenbank-Spalte hinzufügen
+flask db upgrade
+```
+
+```python
+@app.route('/admin/ban_user/<int:user_id>', methods=['POST'])
+def admin_ban_user(user_id):
+    target_user = User.query.get_or_404(user_id)
+    action = request.form.get('action')
+    if action == 'ban':
+        target_user.is_banned = True
+    elif action == 'unban':
+        target_user.is_banned = False
+    db.session.commit()
+    return redirect(url_for('admin_users'))
+```
+
+**Ende der Dokumentation 23:18 16.12.2024**
