@@ -21,3 +21,6 @@ In this chapter, I will be disclosing all of my sources and LLM prompts.
 #ChatGPT Prompts
 
 1. [https://chatgpt.com/c/672e2bc3-6178-8012-a784-79ce4c25197d]
+Frontend
+2. [https://chatgpt.com/c/676068e9-5e5c-8012-babc-8652a0cfa316]
+Admin Account logik 

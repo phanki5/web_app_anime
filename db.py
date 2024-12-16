@@ -11,6 +11,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)  # AdminACC
 
 class RegisterForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], 
@@ -50,6 +51,7 @@ class AnimeList(db.Model):
     genres = db.relationship('Genre', secondary='anime_genre')
 
 def add_initial_anime_data(app):
+    # Du weißt schon du hättest das einfach alles auf einen txt file schreiben können und dann in die datenbank injecten i mean fuck it it works -Ömer
     initial_anime = [
             {
 			'anime_id': 1,

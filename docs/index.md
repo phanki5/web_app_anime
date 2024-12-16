@@ -10,11 +10,25 @@ permalink: /
 
 Anime for everyone
 
-## Team members
+## Team Members
 
 Phan Khoa Nguyen, Steven Förster, Ömer Faruk
 
 About: [GitHub](https://github.com/link-to-your-repo)
+
+---
+
+## Dokumentation
+
+### Projektübersicht
+- [Technische Dokumentation](./TechnicalDocs/technicalDocs.md)
+- [Design-Entscheidungen](./Design%20Decisions/designDecisions.md)
+- [To-Do Liste Ömer](./ToDo/toDo.md)
+- [User Evaluation](./User%20Evaluation/userEvaluation.md)
+- [Value Proposition](./Value%20Proporsition/valueProporsition.md)
+- [Sources Ömer](./sources/sourcesOemer.md)
+
+---
 
 ## Eidesstattliche Erklärung
 
