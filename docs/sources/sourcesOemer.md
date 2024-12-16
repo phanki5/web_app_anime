@@ -21,8 +21,10 @@ In this chapter, I will be disclosing all of my sources and LLM prompts.
 #ChatGPT Prompts
 
 1. [https://chatgpt.com/c/672e2bc3-6178-8012-a784-79ce4c25197d]
-Frontend
-2. [https://chatgpt.com/c/676068e9-5e5c-8012-babc-8652a0cfa316]
+2. [https://chatgpt.com/c/6760ace3-5ed8-8012-bf89-90e51da65a2b]
+3. MP4 Sasuke [https://moewalls.com/anime/uchiha-sasuke-susanoo-live-wallpaper/]
+Frontend Login und Register 2. ist die Überarbeite version
+1. [https://chatgpt.com/c/676068e9-5e5c-8012-babc-8652a0cfa316]
 Admin Account logik 
-3. [https://chatgpt.com/c/67609a89-f804-8012-94e2-11f2c3117c3f]
-Sortierungs Logik + Frontend Animelist mit Tailwind
+1. [https://chatgpt.com/c/67609a89-f804-8012-94e2-11f2c3117c3f]
+Sortierungs Logik + Frontend Animelist mit Tailwind + Admin Logik
