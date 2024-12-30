@@ -28,9 +28,11 @@ permalink: /toDo/
   - Algorithmus zur Sortierung von Anime-Listen nach Benutzerpräferenzen erstellen
 
 ### 🎨 Frontend
-- [ ] **Frontend-Integration:** 
+- [x] **Frontend-Integration:** 
   - Design-Optimierungen für Benutzerfreundlichkeit
 - [] **Back button fehlt beim AdminPanel**
 
 ## 🟢 Geplante Aufgaben
-- [ ] **Login/Register-Page Optimieren** Passendes Design
+- [x] **Login/Register-Page Optimieren** Passendes Design
+- [ ] **Marketplace**
+- [x] **Bilder zu Anime namen** 

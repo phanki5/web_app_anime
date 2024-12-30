@@ -93,6 +93,7 @@
         <thead class="bg-gray-800">
           <tr>
             <th class="border border-gray-700 px-4 py-2">Nr.</th>
+            <th class="border border-gray-700 px-4 py-2">Bild</th>
             <th class="border border-gray-700 px-4 py-2">Titel</th>
             <th class="border border-gray-700 px-4 py-2">Releasedate</th>
             <th class="border border-gray-700 px-4 py-2">Score</th>
@@ -104,7 +105,14 @@
         <tbody>
           {% for anime in animes %}
           <tr class="hover:bg-gray-800">
-            <td class="border border-gray-700 px-4 py-2">{{ anime.anime_id }}</td>
+            <td class="border border-gray-700 px-4 py-2">{{ loop.index }}</td>
+            <td class="border border-gray-700 px-4 py-2">
+              {% if anime.image_url %}
+              <img src="{{ anime.image_url }}" alt="{{ anime.titel }}" class="w-16 h-auto">
+              {% else %}
+              <p>Kein Bild verfügbar</p>
+              {% endif %}
+            </td>
             <td class="border border-gray-700 px-4 py-2">{{ anime.titel }}</td>
             <td class="border border-gray-700 px-4 py-2">{{ anime.releasedate }}</td>
             <td class="border border-gray-700 px-4 py-2">{{ anime.score }}</td>

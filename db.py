@@ -4,9 +4,13 @@ from flask_login import UserMixin
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
+import requests
 
 db = SQLAlchemy()
 
+# ----------------------------------------------------
+#                 MODEL-KLASSEN
+# ----------------------------------------------------
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
@@ -14,30 +18,35 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)  # AdminACC
     is_banned = db.Column(db.Boolean, default=False) # Ban
 
+
 class RegisterForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], 
-                         render_kw={"placeholder": "Username"})
+                           render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], 
-                          render_kw={"placeholder": "Password"})
+                             render_kw={"placeholder": "Password"})
     submit = SubmitField("Register")
-    
+
     def validate_username(self, username):
         existing_user_username = User.query.filter_by(username=username.data).first()
         if existing_user_username:
             raise ValidationError("That username already exists. Please choose a different one.")
 
+
 class LoginForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], 
-                         render_kw={"placeholder": "Username"})
+                           render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], 
-                          render_kw={"placeholder": "Password"})
+                             render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
+
 
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
 
+
 class AnimeGenre(db.Model):
+    # M:N-Zwischentabelle zwischen AnimeList und Genre
     anime_id = db.Column(db.Integer, db.ForeignKey('anime_list.anime_id'), primary_key=True)
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), primary_key=True)
 
@@ -45,9 +54,10 @@ class AnimeList(db.Model):
     anime_id = db.Column(db.Integer, primary_key=True)
     titel = db.Column(db.String(150), nullable=False)
     releasedate = db.Column(db.String, nullable=False)
-    score = db.Column(db.Integer, db.CheckConstraint('score >= 0 AND score <= 100'),nullable=False)
-    summary = db.Column(db.Text,nullable=False)
-    Category = db.Column(db.String(20),nullable=False)
+    score = db.Column(db.Integer, db.CheckConstraint('score >= 0 AND score <= 100'), nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    Category = db.Column(db.String(20), nullable=False)
+    image_url = db.Column(db.String(255))  # Neues Feld für die Bild-URL
     # Beziehungen
     genres = db.relationship('Genre', secondary='anime_genre')
 
@@ -984,3 +994,52 @@ def add_initial_anime_data(app):
             except Exception as e:
                 db.session.rollback()
                 print(f"Fehler beim Hinzufügen von Anime: {e}")
+
+def add_images_to_anime(app, api_key):
+    """
+    Fügt den Anime-Einträgen Bild-URLs aus der TMDB API hinzu.
+    Ruft diese Funktion NUR EINMALIG auf, z. B. per CLI-Kommando.
+    """
+    base_tv_url = "https://api.themoviedb.org/3/search/tv"
+    base_movie_url = "https://api.themoviedb.org/3/search/movie"
+    image_base_url = "https://image.tmdb.org/t/p/w500"  # Basis-URL für Bilder
+
+    with app.app_context():
+        animes = AnimeList.query.all()  # Alle Anime aus der DB holen
+
+        for anime in animes:
+            try:
+                # Nur aktualisieren, wenn KEINE image_url vorhanden ist
+                if anime.image_url:
+                    continue
+
+                if anime.Category == "Series":
+                    base_url = base_tv_url
+                elif anime.Category == "Movie":
+                    base_url = base_movie_url
+                else:
+                    # Sonst 'Special', 'OVA', etc. – kann man ggf. handle(n)
+                    print(f"Unbekannte Kategorie für '{anime.titel}': {anime.Category}")
+                    continue
+
+                response = requests.get(base_url, params={
+                    'api_key': api_key,
+                    'query': anime.titel
+                })
+                data = response.json()
+
+                if data.get('results'):
+                    first_result = data['results'][0]
+                    poster_path = first_result.get('poster_path')
+                    if poster_path:
+                        anime.image_url = f"{image_base_url}{poster_path}"
+                        db.session.commit()
+                        print(f"Bild für '{anime.titel}' hinzugefügt.")
+                    else:
+                        print(f"Kein poster_path für '{anime.titel}' gefunden.")
+                else:
+                    print(f"Kein Treffer für '{anime.titel}' gefunden.")
+
+            except Exception as e:
+                print(f"Fehler bei '{anime.titel}': {e}")
+                db.session.rollback()

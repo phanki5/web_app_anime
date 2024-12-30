@@ -1,3 +1,4 @@
+
 ---
 layout: default
 title: Ömers Technical Docs
@@ -26,7 +27,11 @@ Hier sind die technischen Dokumentationen von **Ömer**.
     - [Register-Route](#register-route)
   - [Authentifizierung und Autorisierung](#authentifizierung-und-autorisierung)
   - [Ban-Funktion \& is\_banned-Spalte](#ban-funktion--is_banned-spalte)
-
+  - [Erweiterungen und Fixes](#erweiterungen-und-fixes)
+    - [Anime-Bilder über API hinzufügen](#anime-bilder-über-api-hinzufügen)
+    - [Neues Datenbankmodell für Bilder](#neues-datenbankmodell-für-bilder)
+    - [Fix für doppelte Einträge](#fix-für-doppelte-einträge)
+    - [Vorteile der Änderungen](#vorteile-der-änderungen)
 ---
 
 ## Einleitung
@@ -206,4 +211,47 @@ def admin_ban_user(user_id):
     return redirect(url_for('admin_users'))
 ```
 
-**Ende der Dokumentation 23:18 16.12.2024**
+## Erweiterungen und Fixes
+
+### Anime-Bilder über API hinzufügen
+
+- Wir haben die Funktionalität implementiert, um fehlende Bilder in der Anime-Datenbank zu aktualisieren.
+- Dazu haben wir einen festen API-Key für die TMDB API (`TMDB_API_KEY`) genutzt.
+- Mit dem CLI-Befehl `flask update-images` können alle Einträge aktualisiert werden.
+- Die Methode `add_images_to_anime(app, TMDB_API_KEY)` wurde hinzugefügt, um Bilder basierend auf der API zu fetchen und in der Datenbank zu speichern.
+
+### Neues Datenbankmodell für Bilder
+
+- In der Tabelle `AnimeList` wurde eine neue Spalte `image_url` hinzugefügt, um die URL für die Anime-Bilder zu speichern.
+
+```python
+class AnimeList(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    image_url = db.Column(db.String(255), nullable=True)  # URL für das Bild
+```
+
+- Nach Hinzufügen der Spalte wurde `flask db upgrade` ausgeführt, um die Datenbank zu migrieren.
+
+### Fix für doppelte Einträge
+
+- Es wurde festgestellt, dass die Tabelle `AnimeList` doppelte Einträge enthielt.
+- Dies wurde behoben, indem die `title`-Spalte als `unique=True` markiert wurde und bestehende doppelte Einträge bereinigt wurden.
+- Die SQLAlchemy-Logik prüft jetzt beim Einfügen, ob der Titel bereits existiert.
+
+```python
+existing_anime = AnimeList.query.filter_by(title=anime_title).first()
+if not existing_anime:
+    new_anime = AnimeList(title=anime_title, description=anime_description, image_url=image_url)
+    db.session.add(new_anime)
+    db.session.commit()
+```
+
+### Vorteile der Änderungen
+
+- Die Anime-Liste enthält jetzt Bilder, die aus der API automatisch hinzugefügt werden.
+- Es gibt keine doppelten Einträge mehr in der Datenbank.
+- Die Anwendung bietet einen CLI-Befehl zur einfachen Aktualisierung der Bilder.
+
+---
