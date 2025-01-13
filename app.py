@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for, redirect, request, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
@@ -7,13 +7,8 @@ import click
 from sqlalchemy import func
 
 # Lokales db.py (Modelle, Forms, usw.)
-from db import db, User, RegisterForm, LoginForm, AnimeList, Genre
+from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark
 from db import add_initial_anime_data, add_images_to_anime
-
-# Zusätzliche Form-Klasse für PW-Reset
-from flask_wtf import FlaskForm
-from wtforms import PasswordField, SubmitField
-from wtforms.validators import InputRequired, EqualTo
 
 #############################
 # HIER: DEIN FEST VERANKERTER API-KEY
@@ -50,7 +45,6 @@ def create_app():
         with app.app_context():
             db.create_all()
             add_initial_anime_data(app)
-            # HIER: Automatisch die Bilder updaten
             add_images_to_anime(app, TMDB_API_KEY)
         click.echo('Database initialized, anime data added, and images fetched!')
 
@@ -121,60 +115,11 @@ def create_app():
     @app.route('/settings')
     @login_required
     def settings():
-        """Beispiel-Seite mit Link zum Passwort-Reset."""
         return render_template('settings.html')
 
-    @app.route('/admin')
-    @login_required
-    def admin_dashboard():
-        """Admin-Dashboard (nur für is_admin)."""
-        if not current_user.is_admin:
-            return "Zugriff verweigert", 403
-
-        user_count = User.query.count()
-        banned_users = User.query.filter_by(is_banned=True).count()
-        anime_count = AnimeList.query.count()
-
-        return render_template(
-            'admin_dashboard.html',
-            user_count=user_count,
-            banned_users=banned_users,
-            anime_count=anime_count
-        )
-
-    # ---------- RESET PASSWORD (für den aktuellen User) ----------
-    class ResetPasswordForm(FlaskForm):
-        old_password = PasswordField(validators=[InputRequired()])
-        new_password = PasswordField(
-            validators=[
-                InputRequired(),
-                EqualTo('confirm_password', message='Passwords must match')
-            ]
-        )
-        confirm_password = PasswordField(validators=[InputRequired()])
-        submit = SubmitField("Change Password")
-
-    @app.route('/reset_password', methods=['GET', 'POST'])
-    @login_required
-    def reset_password():
-        form = ResetPasswordForm()
-        if form.validate_on_submit():
-            if not bcrypt.check_password_hash(current_user.password, form.old_password.data):
-                return render_template('reset_password.html', form=form, error='Old password is incorrect.')
-            hashed_new = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
-            current_user.password = hashed_new
-            db.session.commit()
-            return redirect(url_for('settings'))
-        return render_template('reset_password.html', form=form)
-
-    # ---------- ANIMELIST ROUTE (FILTER & SORT) ----------
     @app.route('/animelist', methods=['GET'])
     @login_required
     def animelist():
-        """
-        Zeigt eine sortier- und filterbare Anime-Liste.
-        KEIN erneutes add_images_to_anime()!
-        """
         sort_options = {
             'score': AnimeList.score,
             'titel': AnimeList.titel,
@@ -187,35 +132,35 @@ def create_app():
         selected_genres = request.args.getlist('genre')
         selected_categories = request.args.getlist('category')
 
-        # Alle Genres/Kategorien abfragen (für Filter-Checkboxen o.ä.)
         all_genres = Genre.query.order_by(Genre.name.asc()).all()
         distinct_categories = db.session.query(AnimeList.Category).distinct().order_by(AnimeList.Category.asc()).all()
         all_categories = [c[0] for c in distinct_categories]
 
-        # Basis-Query
         query = AnimeList.query
 
-        # --- Genre-Filter ---
         if selected_genres:
             query = (query
                      .join(AnimeList.genres)
                      .filter(Genre.name.in_(selected_genres))
                      .group_by(AnimeList.anime_id)
-                     .having(func.count(AnimeList.anime_id) == len(selected_genres))
-            )
+                     .having(func.count(AnimeList.anime_id) == len(selected_genres)))
 
-        # --- Category-Filter ---
         if selected_categories:
             query = query.filter(AnimeList.Category.in_(selected_categories))
 
-        # --- Sortierung ---
+        search_query = request.args.get('search', '').strip()
+        if search_query:
+            query = query.filter(AnimeList.titel.ilike(f"%{search_query}%"))
+
         sort_column = sort_options.get(sort_by, AnimeList.score)
         if order == 'asc':
             query = query.order_by(sort_column.asc())
         else:
             query = query.order_by(sort_column.desc())
 
-        animes = query.limit(50).all()
+        animes = query.limit(200).all()
+
+        user_bookmarked_ids = {bookmark.anime_id for bookmark in Bookmark.query.filter_by(user_id=current_user.id).all()}
 
         return render_template(
             'animelist.html',
@@ -225,52 +170,33 @@ def create_app():
             all_categories=all_categories,
             selected_categories=selected_categories,
             current_sort=sort_by,
-            current_order=order
+            current_order=order,
+            user_bookmarked_ids=user_bookmarked_ids
         )
 
-    # ---------- ADMIN USER MANAGEMENT -----------
-    @app.route('/admin/users')
+    @app.route('/bookmark/<int:anime_id>', methods=['POST'])
     @login_required
-    def admin_users():
-        if not current_user.is_admin:
-            return "Zugriff verweigert", 403
-        users = User.query.all()
-        return render_template('admin_users.html', users=users)
-
-    @app.route('/admin/ban_user/<int:user_id>', methods=['POST'])
-    @login_required
-    def admin_ban_user(user_id):
-        if not current_user.is_admin:
-            return "Zugriff verweigert", 403
-        target_user = User.query.get_or_404(user_id)
-        action = request.form.get('action')
-        if action == 'ban':
-            target_user.is_banned = True
-        elif action == 'unban':
-            target_user.is_banned = False
-        db.session.commit()
-        return redirect(url_for('admin_users'))
-
-    @app.route('/admin/reset_user_password/<int:user_id>', methods=['GET', 'POST'])
-    @login_required
-    def admin_reset_user_password(user_id):
-        if not current_user.is_admin:
-            return "Zugriff verweigert", 403
-        target_user = User.query.get_or_404(user_id)
-        if request.method == 'POST':
-            new_pw = request.form.get('new_password')
-            hashed = bcrypt.generate_password_hash(new_pw).decode('utf-8')
-            target_user.password = hashed
+    def bookmark(anime_id):
+        existing = Bookmark.query.filter_by(user_id=current_user.id, anime_id=anime_id).first()
+        if existing:
+            db.session.delete(existing)
             db.session.commit()
-            return redirect(url_for('admin_users'))
-        return render_template('admin_reset_password.html', user=target_user)
+            flash('Bookmark removed!', 'success')
+        else:
+            new_bookmark = Bookmark(user_id=current_user.id, anime_id=anime_id)
+            db.session.add(new_bookmark)
+            db.session.commit()
+            flash('Bookmark added!', 'success')
+        return redirect(url_for('animelist'))
+
+    @app.route('/my_bookmarks', methods=['GET'])
+    @login_required
+    def my_bookmarks():
+        bookmarked_animes = AnimeList.query.join(Bookmark).filter(Bookmark.user_id == current_user.id).all()
+        return render_template('my_bookmark.html', bookmarked_animes=bookmarked_animes)
 
     return app
 
-
-# ----------------------------------------------------
-#  MAIN: Starte nur, wenn diese Datei direkt ausgeführt
-# ----------------------------------------------------
 if __name__ == "__main__":
     app = create_app()
     with app.app_context():

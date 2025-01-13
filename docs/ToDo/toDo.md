@@ -36,3 +36,7 @@ permalink: /toDo/
 - [x] **Login/Register-Page Optimieren** Passendes Design
 - [ ] **Marketplace**
 - [x] **Bilder zu Anime namen** 
+- [ ] **Read more button**
+- [ ] **Anime checkliste / Tracker**
+- [ ] **Such funktion**
+- [ ] **Nächste Seite**

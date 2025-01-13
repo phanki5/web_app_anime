@@ -50,16 +50,30 @@ class AnimeGenre(db.Model):
     anime_id = db.Column(db.Integer, db.ForeignKey('anime_list.anime_id'), primary_key=True)
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), primary_key=True)
 
+class Bookmark(db.Model):
+    __tablename__ = 'bookmarks'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    anime_id = db.Column(db.Integer, db.ForeignKey('anime_list.anime_id'), nullable=False)
+
+    # Beziehung zu AnimeList
+    anime = db.relationship('AnimeList', backref='bookmark_relationship')
+
+
+
+
 class AnimeList(db.Model):
+    __tablename__ = 'anime_list'
     anime_id = db.Column(db.Integer, primary_key=True)
     titel = db.Column(db.String(150), nullable=False)
     releasedate = db.Column(db.String, nullable=False)
     score = db.Column(db.Integer, db.CheckConstraint('score >= 0 AND score <= 100'), nullable=False)
     summary = db.Column(db.Text, nullable=False)
     Category = db.Column(db.String(20), nullable=False)
-    image_url = db.Column(db.String(255))  # Neues Feld für die Bild-URL
-    # Beziehungen
+    image_url = db.Column(db.String(255))
     genres = db.relationship('Genre', secondary='anime_genre')
+
+
 
 def add_initial_anime_data(app):
     # Du weißt schon du hättest das einfach alles auf einen txt file schreiben können und dann in die datenbank injecten i mean fuck it it works -Ömer

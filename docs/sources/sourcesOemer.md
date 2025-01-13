@@ -30,3 +30,5 @@ Admin Account logik
 Sortierungs Logik + Frontend Animelist mit Tailwind + Admin Logik
 6. [https://chatgpt.com/c/6772730c-97f4-8012-bfb9-7af64d322432]
 Bilder einfügen über API Key in Datenbank
+7. [https://chatgpt.com/c/67856f0a-4104-8012-8642-e986d79bd6d0]
+Bookmark + my bookmark seite + read more funktion + such funktion + routes( das letze mal das ich chatgpt benutze)
