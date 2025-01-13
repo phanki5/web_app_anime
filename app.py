@@ -10,6 +10,11 @@ from sqlalchemy import func
 from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark
 from db import add_initial_anime_data, add_images_to_anime
 
+# Zusätzliche Form-Klasse für PW-Reset
+from flask_wtf import FlaskForm
+from wtforms import PasswordField, SubmitField
+from wtforms.validators import InputRequired, EqualTo
+
 #############################
 # HIER: DEIN FEST VERANKERTER API-KEY
 #############################
@@ -38,10 +43,6 @@ def create_app():
     # ----------------------------------------------------
     @app.cli.command('init-db')
     def init_db_command():
-        """
-        Legt alle Tabellen an (db.create_all()) und führt add_initial_anime_data(app) aus.
-        DANN ruft es add_images_to_anime auf, damit Bilder direkt geholt werden.
-        """
         with app.app_context():
             db.create_all()
             add_initial_anime_data(app)
@@ -52,7 +53,6 @@ def create_app():
     @click.argument('username')
     @click.argument('password')
     def create_admin_command(username, password):
-        """Erstellt einen Admin-User."""
         with app.app_context():
             existing = User.query.filter_by(username=username).first()
             if existing:
@@ -117,6 +117,27 @@ def create_app():
     def settings():
         return render_template('settings.html')
 
+    class ResetPasswordForm(FlaskForm):
+        old_password = PasswordField(validators=[InputRequired()])
+        new_password = PasswordField(
+            validators=[InputRequired(), EqualTo('confirm_password', message='Passwords must match')]
+        )
+        confirm_password = PasswordField(validators=[InputRequired()])
+        submit = SubmitField("Change Password")
+
+    @app.route('/reset_password', methods=['GET', 'POST'])
+    @login_required
+    def reset_password():
+        form = ResetPasswordForm()
+        if form.validate_on_submit():
+            if not bcrypt.check_password_hash(current_user.password, form.old_password.data):
+                return render_template('reset_password.html', form=form, error='Old password is incorrect.')
+            hashed_new = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+            current_user.password = hashed_new
+            db.session.commit()
+            return redirect(url_for('settings'))
+        return render_template('reset_password.html', form=form)
+
     @app.route('/animelist', methods=['GET'])
     @login_required
     def animelist():
@@ -147,10 +168,6 @@ def create_app():
 
         if selected_categories:
             query = query.filter(AnimeList.Category.in_(selected_categories))
-
-        search_query = request.args.get('search', '').strip()
-        if search_query:
-            query = query.filter(AnimeList.titel.ilike(f"%{search_query}%"))
 
         sort_column = sort_options.get(sort_by, AnimeList.score)
         if order == 'asc':
@@ -193,7 +210,60 @@ def create_app():
     @login_required
     def my_bookmarks():
         bookmarked_animes = AnimeList.query.join(Bookmark).filter(Bookmark.user_id == current_user.id).all()
-        return render_template('my_bookmark.html', bookmarked_animes=bookmarked_animes)
+        return render_template('my_bookmarks.html', bookmarked_animes=bookmarked_animes)
+
+    @app.route('/admin')
+    @login_required
+    def admin_dashboard():
+        if not current_user.is_admin:
+            return "Zugriff verweigert", 403
+
+        user_count = User.query.count()
+        banned_users = User.query.filter_by(is_banned=True).count()
+        anime_count = AnimeList.query.count()
+
+        return render_template(
+            'admin_dashboard.html',
+            user_count=user_count,
+            banned_users=banned_users,
+            anime_count=anime_count
+        )
+
+    @app.route('/admin/users')
+    @login_required
+    def admin_users():
+        if not current_user.is_admin:
+            return "Zugriff verweigert", 403
+        users = User.query.all()
+        return render_template('admin_users.html', users=users)
+
+    @app.route('/admin/ban_user/<int:user_id>', methods=['POST'])
+    @login_required
+    def admin_ban_user(user_id):
+        if not current_user.is_admin:
+            return "Zugriff verweigert", 403
+        target_user = User.query.get_or_404(user_id)
+        action = request.form.get('action')
+        if action == 'ban':
+            target_user.is_banned = True
+        elif action == 'unban':
+            target_user.is_banned = False
+        db.session.commit()
+        return redirect(url_for('admin_users'))
+
+    @app.route('/admin/reset_user_password/<int:user_id>', methods=['GET', 'POST'])
+    @login_required
+    def admin_reset_user_password(user_id):
+        if not current_user.is_admin:
+            return "Zugriff verweigert", 403
+        target_user = User.query.get_or_404(user_id)
+        if request.method == 'POST':
+            new_pw = request.form.get('new_password')
+            hashed = bcrypt.generate_password_hash(new_pw).decode('utf-8')
+            target_user.password = hashed
+            db.session.commit()
+            return redirect(url_for('admin_users'))
+        return render_template('admin_reset_password.html', user=target_user)
 
     return app
 
