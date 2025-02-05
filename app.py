@@ -111,6 +111,11 @@ def create_app():
     @login_required
     def marketplace():
         return render_template('marketplace.html')
+    
+    @app.route('/marketplace_entry', methods=['GET'])
+    @login_required
+    def marketplace_entry():
+        return render_template('marketplace_entry.html')
 
     @app.route('/settings')
     @login_required
