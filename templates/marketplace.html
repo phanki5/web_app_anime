@@ -73,8 +73,12 @@
 
     <!-- Main Content -->
     <div class="flex-1 p-6">
-        <h2 class="text-xl font-bold mb-4">Welcome to the Marketplace</h2>
-        <!-- Weitere Marketplace-Inhalte hier -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">Welcome to the Marketplace</h2>
+            <a href="{{ url_for('marketplace_entry') }}" 
+               class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                Neues Angebot erstellen
+            </a>
     </div>
 </body>
 </html>
