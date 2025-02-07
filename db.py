@@ -65,7 +65,7 @@ class Bookmark(db.Model):
 class AnimeList(db.Model):
     __tablename__ = 'anime_list'
     anime_id = db.Column(db.Integer, primary_key=True)
-    titel = db.Column(db.String(150), nullable=False)
+    titel = db.Column(db.String(150), nullable=False,unique =True)
     releasedate = db.Column(db.String, nullable=False)
     score = db.Column(db.Integer, db.CheckConstraint('score >= 0 AND score <= 100'), nullable=False)
     summary = db.Column(db.Text, nullable=False)
@@ -73,7 +73,13 @@ class AnimeList(db.Model):
     image_url = db.Column(db.String(255))
     genres = db.relationship('Genre', secondary='anime_genre')
 
-
+class OfferList(db.Model):
+    __tablename__='OfferList'
+    offer_id =db.Column(db.Integer,primary_key=True)
+    titel = db.Column(db.String(150), db.ForeignKey('anime_list.anime_id'), nullable=False)
+    price = db.Column(db.Float,nullable=False)
+    Offer_Type = db.Column(db.String(10),nullable=False)
+ 
 
 def add_initial_anime_data(app):
     # Du weißt schon du hättest das einfach alles auf einen txt file schreiben können und dann in die datenbank injecten i mean fuck it it works -Ömer
