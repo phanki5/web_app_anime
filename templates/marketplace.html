@@ -6,65 +6,22 @@
     <title>Marketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 h-screen flex flex-col">
+<body class="bg-gray-900 text-white h-screen flex flex-col">
     <!-- Navbar -->
-    <nav class="border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+    <nav class="border-gray-700 bg-gray-800">
       <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="#" class="flex items-center">
-            <span class="text-2xl font-bold text-gray-900 dark:text-white">ANIME MARKETPLACE</span>
+            <span class="text-2xl font-bold text-white">ANIME MARKETPLACE</span>
         </a>
-        <button data-collapse-toggle="navbar-solid-bg" type="button"
-                class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                aria-controls="navbar-solid-bg" aria-expanded="false">
-            <span class="sr-only">Open main menu</span>
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" 
-                 fill="none" viewBox="0 0 17 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" 
-                      stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-            </svg>
-        </button>
         <div class="hidden w-full md:block md:w-auto" id="navbar-solid-bg">
-          <ul class="flex flex-col font-medium mt-4 rounded-lg bg-gray-50 
+          <ul class="flex flex-col font-medium mt-4 rounded-lg bg-gray-800 
                      md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 
                      md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent dark:border-gray-700">
-            <li>
-              <a href="{{ url_for('dashboard') }}" 
-                 class="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded
-                        md:bg-transparent md:text-blue-700 md:dark:text-blue-500 dark:bg-blue-600
-                        md:dark:bg-transparent" aria-current="page">
-                Back to Dashboard
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('animelist') }}" 
-                 class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 
-                        md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-white 
-                        md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white 
-                        md:dark:hover:bg-transparent">
-                Animelist
-              </a>
-            </li>
-            <li>
-              <a href="{{ url_for('settings') }}" 
-                 class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 
-                        md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-white 
-                        md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white 
-                        md:dark:hover:bg-transparent">
-                Settings
-              </a>
-            </li>
-
-            <!-- Nur für Admins sichtbar -->
+            <li><a href="{{ url_for('dashboard') }}" class="block py-2 px-3 text-white bg-blue-700 rounded">Back to Dashboard</a></li>
+            <li><a href="{{ url_for('animelist') }}" class="block py-2 px-3 text-gray-300 hover:text-blue-400">Animelist</a></li>
+            <li><a href="{{ url_for('settings') }}" class="block py-2 px-3 text-gray-300 hover:text-blue-400">Settings</a></li>
             {% if current_user.is_admin %}
-              <li>
-                <a href="{{ url_for('admin_users') }}"
-                   class="block py-2 px-3 md:p-0 text-red-500 font-semibold rounded hover:bg-gray-100 
-                          md:hover:bg-transparent md:border-0 md:hover:text-red-600 
-                          dark:text-red-400 md:dark:hover:text-red-500 dark:hover:bg-gray-700 
-                          dark:hover:text-white md:dark:hover:bg-transparent">
-                  Admin Panel
-                </a>
-              </li>
+              <li><a href="{{ url_for('admin_users') }}" class="block py-2 px-3 text-red-400 font-semibold hover:text-red-500">Admin Panel</a></li>
             {% endif %}
           </ul>
         </div>
@@ -74,11 +31,21 @@
     <!-- Main Content -->
     <div class="flex-1 p-6">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold">Welcome to the Marketplace</h2>
-            <a href="{{ url_for('marketplace_entry') }}" 
-               class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-                Neues Angebot erstellen
-            </a>
+            <h2 class="text-xl font-bold text-white">Welcome to the Marketplace</h2>
+            <a href="{{ url_for('marketplace_entry') }}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">Create New Offer</a>
+        </div>
+        
+        <!-- Offer Listings -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for offer in offers %}
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md">
+                <img src="{{ offer.image_url }}" alt="{{ offer.titel }}" class="w-full h-48 object-cover rounded-md">
+                <h3 class="text-lg font-bold mt-2 text-white">{{ offer.titel }}</h3>
+                <p class="text-gray-400">Price: €{{ offer.price }}</p>
+                <p class="text-gray-300">Offer Type: <span class="font-semibold">{{ offer.Offer_Type }}</span></p>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </body>
 </html>
