@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex flex-col">
-    <!-- Navbar -->
     <nav class="border-gray-700 bg-gray-800">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
             <a href="#" class="text-2xl font-bold">ANIME HUB</a>
@@ -15,7 +14,6 @@
                 <li><a href="{{ url_for('dashboard') }}" class="text-gray-300 hover:text-white">Dashboard</a></li>
                 <li><a href="{{ url_for('marketplace') }}" class="text-gray-300 hover:text-white">Marketplace</a></li>
                 <li><a href="{{ url_for('settings') }}" class="text-gray-300 hover:text-white">Settings</a></li>
-
                 {% if current_user.is_admin %}
                     <li>
                         <a href="{{ url_for('admin_users') }}" class="text-red-400 font-semibold hover:text-red-500">
@@ -27,65 +25,47 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="flex-1 p-6">
         <div class="max-w-2xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-6 text-white">Neues Angebot erstellen</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white">Create New Offer</h2>
             
-            <form action="{{ url_for('marketplace') }}" method="POST" class="space-y-6">
-                <!-- Anime Name -->
+            <form action="{{ url_for('marketplace_entry') }}" method="POST" class="space-y-6">
                 <div>
                     <label for="anime_name" class="block text-sm font-medium text-gray-300 mb-2">
                         Anime Name
                     </label>
-                    <input type="text" id="anime_name" name="anime_name" required
-                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <select id="anime_name" name="anime_name" required
+                            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        {% for anime in anime_list %}
+                            <option value="{{ anime.titel }}">{{ anime.titel }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-
-                <!-- Preis -->
                 <div>
-                    <label for="price" class="block text-sm font-medium text-gray-300 mb-2">
-                        Preis (€)
-                    </label>
+                    <label for="price" class="block text-sm font-medium text-gray-300 mb-2">Price (€)</label>
                     <input type="number" id="price" name="price" step="0.01" required
                            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
-
-                <!-- Art des Angebots -->
                 <div class="space-y-4">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">
-                        Art des Angebots
-                    </label>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Offer Type</label>
                     <div class="flex items-center space-x-4">
                         <div class="flex items-center">
-                            <input type="radio" id="selling" name="offer_type" value="selling" required
-                                   class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500">
-                            <label for="selling" class="ml-2 block text-sm text-gray-300">
-                                Verkaufen
-                            </label>
+                            <input type="radio" id="selling" name="offer_type" value="selling" required>
+                            <label for="selling" class="ml-2">Sell</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="radio" id="searching" name="offer_type" value="searching" required
-                                   class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500">
-                            <label for="searching" class="ml-2 block text-sm text-gray-300">
-                                Suchen
-                            </label>
+                            <input type="radio" id="searching" name="offer_type" value="searching" required>
+                            <label for="searching" class="ml-2">Search</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="radio" id="exchange" name="offer_type" value="exchange" required
-                                   class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500">
-                            <label for="exchange" class="ml-2 block text-sm text-gray-300">
-                                Tauschen
-                            </label>
+                            <input type="radio" id="exchange" name="offer_type" value="exchange" required>
+                            <label for="exchange" class="ml-2">Trade</label>
                         </div>
                     </div>
                 </div>
-
-                <!-- Submit Button -->
                 <div class="flex justify-end">
-                    <button type="submit" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Angebot erstellen
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Create Offer
                     </button>
                 </div>
             </form>
