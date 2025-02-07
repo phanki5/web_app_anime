@@ -7,7 +7,7 @@ import click
 from sqlalchemy import func
 
 # Lokales db.py (Modelle, Forms, usw.)
-from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark
+from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList
 from db import add_initial_anime_data, add_images_to_anime
 
 # Zusätzliche Form-Klasse für PW-Reset
@@ -110,12 +110,35 @@ def create_app():
     @app.route('/marketplace')
     @login_required
     def marketplace():
-        return render_template('marketplace.html')
+        offers = db.session.query(
+        OfferList.titel, 
+        OfferList.price, 
+        OfferList.Offer_Type, 
+        AnimeList.image_url
+        ).join(AnimeList, OfferList.titel == AnimeList.titel).all()
     
-    @app.route('/marketplace_entry', methods=['GET'])
+        return render_template('marketplace.html', offers=offers)
+    
+    @app.route('/marketplace_entry', methods=['GET', 'POST'])
     @login_required
     def marketplace_entry():
-        return render_template('marketplace_entry.html')
+        if request.method == 'POST':
+            anime_name = request.form.get('anime_name')
+            price = request.form.get('price')
+            offer_type = request.form.get('offer_type')
+            
+            if not anime_name or not price or not offer_type:
+                flash('All fields are required!', 'error')
+                return redirect(url_for('marketplace_entry'))
+            
+            new_offer = OfferList(titel=anime_name, price=float(price), Offer_Type=offer_type)
+            db.session.add(new_offer)
+            db.session.commit()
+            flash('Offer added successfully!', 'success')
+            return redirect(url_for('marketplace'))
+        
+        anime_list = AnimeList.query.all()
+        return render_template('marketplace_entry.html', anime_list=anime_list)
 
     @app.route('/settings')
     @login_required
