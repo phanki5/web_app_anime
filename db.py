@@ -79,6 +79,7 @@ class OfferList(db.Model):
     titel = db.Column(db.String(150), db.ForeignKey('anime_list.anime_id'), nullable=False)
     price = db.Column(db.Float,nullable=False)
     Offer_Type = db.Column(db.String(10),nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) #Wird benötigt um zu wissen welcher User das Angebot erstellt hat
  
 
 def add_initial_anime_data(app):
