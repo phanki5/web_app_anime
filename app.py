@@ -2,6 +2,8 @@
 from flask import Flask, render_template, url_for, redirect, request, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
+from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from flask_migrate import Migrate
 import click
 from sqlalchemy import func
@@ -33,6 +35,11 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = "login"
+    csrf = CSRFProtect(app)  # Enable CSRF protection
+
+    @app.context_processor
+    def inject_csrf_token():
+        return dict(csrf_token=lambda: generate_csrf())
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -131,7 +138,7 @@ def create_app():
                 flash('All fields are required!', 'error')
                 return redirect(url_for('marketplace_entry'))
             
-            new_offer = OfferList(titel=anime_name, price=float(price), Offer_Type=offer_type)
+            new_offer = OfferList(titel=anime_name, price=float(price), Offer_Type=offer_type, user_id=current_user.id) # Added user ID here
             db.session.add(new_offer)
             db.session.commit()
             flash('Offer added successfully!', 'success')
