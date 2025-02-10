@@ -73,15 +73,17 @@ class AnimeList(db.Model):
     image_url = db.Column(db.String(255))
     genres = db.relationship('Genre', secondary='anime_genre')
 
+
 class OfferList(db.Model):
-    __tablename__='OfferList'
-    offer_id =db.Column(db.Integer,primary_key=True)
+    __tablename__ = 'offer_list'
+    offer_id = db.Column(db.Integer, primary_key=True)
     titel = db.Column(db.String(150), db.ForeignKey('anime_list.anime_id'), nullable=False)
-    price = db.Column(db.Float,nullable=False)
-    Offer_Type = db.Column(db.String(10),nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) #Wird benötigt um zu wissen welcher User das Angebot erstellt hat
- 
+    price = db.Column(db.Float, nullable=False)
+    Offer_Type = db.Column(db.String(10), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
 class Request(db.Model):
+    __tablename__ = 'request'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     offer_id = db.Column(db.Integer, db.ForeignKey('offer_list.offer_id'), nullable=False)
