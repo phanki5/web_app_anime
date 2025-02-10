@@ -240,6 +240,27 @@ def create_app():
         bookmarked_animes = AnimeList.query.join(Bookmark).filter(Bookmark.user_id == current_user.id).all()
         return render_template('my_bookmarks.html', bookmarked_animes=bookmarked_animes)
 
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
+    @app.route('/request_offer/<int:offer_id>', methods=['POST'])
+    @login_required
+    def request_offer(offer_id):
+        offer = OfferList.query.get_or_404(offer_id)
+        if offer.user_id == current_user.id:
+            flash('You cannot request your own offer!', 'error')
+            return redirect(url_for('marketplace'))
+    
+    # Handle the request logic here
+    # For example, you can create a new Request model and save it to the database
+    # new_request = Request(user_id=current_user.id, offer_id=offer_id)
+    # db.session.add(new_request)
+    # db.session.commit()
+        
+        flash('Request for offer submitted!', 'success')
+        return redirect(url_for('marketplace'))
+
     @app.route('/admin')
     @login_required
     def admin_dashboard():
@@ -256,6 +277,13 @@ def create_app():
             banned_users=banned_users,
             anime_count=anime_count
         )
+
+    @app.route('/inbox')
+    @login_required
+    def inbox():
+    # Fetch incoming request messages for the current user's offers
+        incoming_requests = Request.query.join(OfferList).filter(OfferList.user_id == current_user.id).all()
+        return render_template('inbox.html', incoming_requests=incoming_requests)
 
     @app.route('/admin/users')
     @login_required
