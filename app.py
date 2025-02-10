@@ -7,7 +7,7 @@ import click
 from sqlalchemy import func
 
 # Lokales db.py (Modelle, Forms, usw.)
-from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList
+from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList, Request
 from db import add_initial_anime_data, add_images_to_anime
 
 # Zusätzliche Form-Klasse für PW-Reset
@@ -239,10 +239,6 @@ def create_app():
     def my_bookmarks():
         bookmarked_animes = AnimeList.query.join(Bookmark).filter(Bookmark.user_id == current_user.id).all()
         return render_template('my_bookmarks.html', bookmarked_animes=bookmarked_animes)
-
-    @app.route('/')
-    def index():
-        return render_template('index.html')
 
     @app.route('/request_offer/<int:offer_id>', methods=['POST'])
     @login_required

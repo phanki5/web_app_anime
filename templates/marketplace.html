@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.3.4/dist/forms.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white h-screen flex flex-col">
     <!-- Navbar -->
@@ -38,14 +39,68 @@
         <!-- Offer Listings -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for offer in offers %}
-            <div class="bg-gray-800 p-4 rounded-lg shadow-md">
+            <div class="bg-gray-800 p-4 rounded-lg s hadow-md  relative">
                 <img src="{{ offer.image_url }}" alt="{{ offer.titel }}" class="w-full h-48 object-cover rounded-md">
                 <h3 class="text-lg font-bold mt-2 text-white">{{ offer.titel }}</h3>
                 <p class="text-gray-400">Price: €{{ offer.price }}</p>
                 <p class="text-gray-300">Offer Type: <span class="font-semibold">{{ offer.Offer_Type }}</span></p>
+                {% if offer.user_id != current_user.id %}
+                <button onclick="openModal({{ offer.offer_id }})" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded absolute bottom-4 right-4">Request</button>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
     </div>
+
+
+    <!-- Modal -->
+    <div id="requestModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Request Offer</h2>
+            <form id="requestForm" method="post">
+                <input type="hidden" name="offer_id" id="offer_id">
+                <textarea name="message" id="message" rows="4" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Write your request message here..."></textarea>
+                <div class="flex justify-end mt-4">
+                    <button type="button" onclick="closeModal()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Cancel</button>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Send Request Offer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(offerId) {
+            document.getElementById('offer_id').value = offerId;
+            document.getElementById('requestModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('requestModal').classList.add('hidden');
+        }
+
+        document.getElementById('requestForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const offerId = document.getElementById('offer_id').value;
+            const message = document.getElementById('message').value;
+
+            fetch(`/request_offer/${offerId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    alert('Request sent successfully!');
+                } else {
+                    alert('Failed to send request.');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
