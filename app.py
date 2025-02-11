@@ -119,9 +119,11 @@ def create_app():
     @login_required
     def marketplace():
         offers = db.session.query(
+        OfferList.offer_id,
         OfferList.titel, 
         OfferList.price, 
-        OfferList.Offer_Type, 
+        OfferList.Offer_Type,
+        OfferList.user_id, 
         AnimeList.image_url
         ).join(AnimeList, OfferList.titel == AnimeList.titel).all()
     
@@ -251,7 +253,7 @@ def create_app():
     @app.route('/request_offer/<int:offer_id>', methods=['POST'])
     @login_required
     def request_offer(offer_id):
-        offer = OfferList.query.get_or_404(offer_id)
+        offer = OfferList.query.all.get_or_404(offer_id)
         
         # Prevent user from requesting their own offer
         if offer.user_id == current_user.id:
@@ -280,9 +282,7 @@ def create_app():
     # new_request = Request(user_id=current_user.id, offer_id=offer_id)
     # db.session.add(new_request)
     # db.session.commit()
-        
-        flash('Request for offer submitted!', 'success')
-        return redirect(url_for('marketplace'))
+
 
     @app.route('/admin')
     @login_required
