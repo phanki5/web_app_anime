@@ -10,7 +10,7 @@ from sqlalchemy import func
 from flask import jsonify
 
 # Lokales db.py (Modelle, Forms, usw.)
-from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList, Request
+from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList, Request, Response
 from db import add_initial_anime_data, add_images_to_anime
 
 # Zusätzliche Form-Klasse für PW-Reset
@@ -276,6 +276,34 @@ def create_app():
             flash("Database error.", "danger")
         
         return redirect(url_for('marketplace'))
+    
+    @app.route('/send_response/<int:request_id>', methods=['POST'])
+    @login_required
+    def send_response(request_id):
+        # Get the original request
+        orig_request = Request.query.get_or_404(request_id)
+        if not orig_request:
+            flash("Request not found.", "error")
+            return redirect(url_for('inbox'))
+        
+        # Get the response message from the form
+        response_text = request.form.get("response_message", "")
+        
+        # Create the final message as specified
+        final_message = f"Response from {current_user.id} on {orig_request.offer.titel}: {response_text}"
+        
+        # Create and store the Response model instance
+        new_response = Response(
+            user_id=current_user.id,
+            offer_id=orig_request.offer_id,
+            message=final_message,
+            request_id=request_id
+        )
+        db.session.add(new_response)
+        db.session.commit()
+        
+        flash("Response sent successfully.", "success")
+        return redirect(url_for('inbox'))
     
     # Handle the request logic here
     # For example, you can create a new Request model and save it to the database

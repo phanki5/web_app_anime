@@ -98,8 +98,10 @@ class Response(db.Model):
     offer_id = db.Column(db.Integer, db.ForeignKey('offer_list.offer_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('request.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('requests', lazy=True))
-    offer = db.relationship('OfferList', backref=db.backref('requests', lazy=True))
+    user = db.relationship('User', backref=db.backref('response_messages', lazy=True)) 
+    offer = db.relationship('OfferList', backref=db.backref('offer_responses', lazy=True))
+    
+    
 
 def add_initial_anime_data(app):
     # Du weißt schon du hättest das einfach alles auf einen txt file schreiben können und dann in die datenbank injecten i mean fuck it it works -Ömer
