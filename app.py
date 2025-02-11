@@ -253,7 +253,7 @@ def create_app():
     @app.route('/request_offer/<int:offer_id>', methods=['POST'])
     @login_required
     def request_offer(offer_id):
-        offer = OfferList.query.all.get_or_404(offer_id)
+        offer = OfferList.query.get_or_404(offer_id)
         
         # Prevent user from requesting their own offer
         if offer.user_id == current_user.id:
