@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/82c10cb842.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col">
     <!-- Navbar -->
@@ -72,6 +74,12 @@
                 </a>
               </li>
             {% endif %}
+            <!-- Icon hrefs -->
+            <li class="flex items-center">
+                      <a href="{{ url_for('inbox') }}" class="block py-2 px-3 md:p-0 text-gray-300 hover:text-black">
+                      <i class="fa-solid fa-inbox" style="color: #000000;"></i>
+                  </a>
+              </li>
           </ul>
         </div>
       </div>

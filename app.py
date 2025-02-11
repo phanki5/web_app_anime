@@ -7,6 +7,7 @@ from flask_wtf.csrf import generate_csrf
 from flask_migrate import Migrate
 import click
 from sqlalchemy import func
+from flask import jsonify
 
 # Lokales db.py (Modelle, Forms, usw.)
 from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList, Request
@@ -251,9 +252,28 @@ def create_app():
     @login_required
     def request_offer(offer_id):
         offer = OfferList.query.get_or_404(offer_id)
+        
+        # Prevent user from requesting their own offer
         if offer.user_id == current_user.id:
-            flash('You cannot request your own offer!', 'error')
+            flash("You cannot request your own offer.", "danger")
             return redirect(url_for('marketplace'))
+        
+        message = request.form.get('message')
+        if not message:
+            flash("Message is missing.", "danger")
+            return redirect(url_for('marketplace'))
+        
+        new_request = Request(user_id=current_user.id, offer_id=offer_id, message=message)
+        db.session.add(new_request)
+        
+        try:
+            db.session.commit()
+            flash("Request sent successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Database error.", "danger")
+        
+        return redirect(url_for('marketplace'))
     
     # Handle the request logic here
     # For example, you can create a new Request model and save it to the database
