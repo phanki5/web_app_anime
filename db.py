@@ -91,6 +91,16 @@ class Request(db.Model):
     user = db.relationship('User', backref=db.backref('requests', lazy=True))
     offer = db.relationship('OfferList', backref=db.backref('requests', lazy=True))
 
+class Response(db.Model):
+    __tablename__ = 'response'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    offer_id = db.Column(db.Integer, db.ForeignKey('offer_list.offer_id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    request_id = db.Column(db.Integer, db.ForeignKey('request.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('requests', lazy=True))
+    offer = db.relationship('OfferList', backref=db.backref('requests', lazy=True))
+
 def add_initial_anime_data(app):
     # Du weißt schon du hättest das einfach alles auf einen txt file schreiben können und dann in die datenbank injecten i mean fuck it it works -Ömer
     initial_anime = [
