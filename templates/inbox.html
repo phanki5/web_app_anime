@@ -32,105 +32,84 @@
     <!-- Sidebar -->
     <div class="w-1/4 bg-gray-800 p-4 rounded-lg shadow-md">
         <h2 class="text-xl font-bold text-white mb-4">Inbox</h2>
-        <ul>
-            <li class="mb-2">
-                <strong>Requests</strong>
-                <ul>
-                    {% for request in incoming_requests %}
-                    <li class="mb-2 flex justify-between items-center">
-                        <button onclick="openRequestModal({{ request.id }})" 
-                                class="w-full text-left bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded">
-                            Request from {{ request.user.username }} on {{ request.offer.titel }}
-                        </button>
-                        <button 
-                            onclick="openResponseModal(this)" 
-                            data-request-id="{{ request.id }}"
-                            data-username="{{ request.user.username }}"
-                            data-offer-title="{{ request.offer.titel }}"
-                            data-offer-price="{{ request.offer.price }}"
-                            data-message="{{ request.message }}"
-                            class="ml-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                            Reply
-                        </button>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </li>
-            <li class="mt-4">
-                <strong>Responses</strong>
-                <ul>
-                    {% for response in incoming_responses %}
-                    <li class="mb-2 bg-gray-700 p-2 rounded">
-                        <p class="text-sm">
-                            {{ response.message }}
-                        </p>
-                        <p class="text-xs text-gray-300">
-                            (Response to Request #{{ response.request_id }})
-                        </p>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </li>
-        </ul>
-    </div>>
-
-        <!-- Message Content -->
-        <div class="flex-1 bg-gray-800 p-4 rounded-lg shadow-md ml-4">
-            <h2 class="text-xl font-bold text-white mb-4">Past Messages</h2>
-            <div id="messageContent" class="text-gray-300">
-                Select a request to view the message.
-            </div>
+       <!-- Pending Requests -->
+        <div class="mb-8">
+            <h3 class="text-xl">Pending Requests</h3>
+            <ul>
+                {% for req in pending_requests %}
+                <li class="mb-2 p-2 bg-gray-800 rounded flex justify-between items-center">
+                    <span>
+                        Request from {{ req.user.username }} on {{ req.offer.titel }}
+                    </span>
+                    <button 
+                        onclick="openResponseModal(this)" 
+                        data-request-id="{{ req.id }}"
+                        data-username="{{ req.user.username }}"
+                        data-offer-title="{{ req.offer.titel }}"
+                        data-offer-price="{{ req.offer.price }}"
+                        data-message="{{ req.message }}"
+                        class="bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded">
+                        Reply
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <!-- Past Messages -->
+        <div>
+            <h3 class="text-xl">Past Messages</h3>
+            <ul>
+                {% for req in past_requests %}
+                <li class="mb-2 p-2 bg-gray-700 rounded">
+                    <p>{{ req.message }}</p>
+                    <p class="text-sm">(Request responded to)</p>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 
-    <!-- In inbox.html, update the Response Modal -->
-    <!-- Response Modal -->
+    <!-- Response Modal (for replying to requests as shown earlier) -->
     <div id="responseModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl text-black font-bold mb-4">Respond to Request</h2>
             <div class="flex flex-col h-64">
-                <!-- Upper Half: Display the original request message -->
-                <div id="responseRequestMessageContent" class="flex-1 overflow-auto text-gray-700 mb-4 border-b pb-2">
-                    <!-- The request message will be loaded via JS -->
-                </div>
+                <!-- Upper Half: Display original request message -->
+                <div id="responseRequestMessageContent" class="flex-1 overflow-auto text-gray-700 mb-4 border-b pb-2"></div>
                 <!-- Lower Half: Form to send your response -->
                 <div class="flex-1">
                     <form id="responseForm" method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="request_id" id="response_request_id">
-                        <textarea name="response_message" id="response_message" rows="4" class="w-full p-2 border border-gray-300 text-black rounded-md" placeholder="Write your response message here..."></textarea>
+                        <textarea name="response_message" id="response_message" rows="4" class="w-full p-2 border border-gray-300 text-black rounded-md" placeholder="Write your response here..."></textarea>
                         <div class="flex justify-end mt-4">
-                            <button type="button" onclick="closeResponseModal()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-2">Cancel</button>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Send Response</button>
+                            <button type="button" onclick="closeResponseModal()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2">Cancel</button>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Send Response</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    
     <script>
-        // Update the JS to use the new id
         function openResponseModal(element) {
-            // Get the data from the HTML element
             const requestId = element.getAttribute('data-request-id');
             const username = element.getAttribute('data-username');
             const offerTitle = element.getAttribute('data-offer-title');
             const message = element.getAttribute('data-message');
 
-            // Update the Response Modal with the original request details
             document.getElementById('responseRequestMessageContent').innerHTML = `
                 <h3 class="text-lg font-bold mb-2">Request from ${username}</h3>
-                <p class="text-gray-700 mb-2">Offer: ${offerTitle}</p>
-                <p class="text-gray-700">${message}</p>
+                <p>Offer: ${offerTitle}</p>
+                <p>Price: €${element.getAttribute('data-offer-price')}</p>
+                <p>${message}</p>
             `;
-            
-            // Set the hidden field value and update the form action URL correctly
             document.getElementById('response_request_id').value = requestId;
             document.getElementById('responseForm').action = `/send_response/${requestId}`;
-            
             document.getElementById('responseModal').classList.remove('hidden');
         }
-
         function closeResponseModal() {
             document.getElementById('responseModal').classList.add('hidden');
         }

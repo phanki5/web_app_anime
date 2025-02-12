@@ -277,39 +277,63 @@ def create_app():
         
         return redirect(url_for('marketplace'))
     
-    @app.route('/send_response/<int:request_id>', methods=['POST'])
-    @login_required
-    def send_response(request_id):
-        # Get the original request
-        orig_request = Request.query.get_or_404(request_id)
-        if not orig_request:
-            flash("Request not found.", "error")
-            return redirect(url_for('inbox'))
-        
-        # Get the response message from the form
-        response_text = request.form.get("response_message", "")
-        
-        # Create the final message as specified
-        final_message = f"Response from {current_user.id} on {orig_request.offer.titel}: {response_text}"
-        
-        # Create and store the Response model instance
-        new_response = Response(
-            user_id=current_user.id,
-            offer_id=orig_request.offer_id,
-            message=final_message,
-            request_id=request_id
-        )
-        db.session.add(new_response)
-        db.session.commit()
-        
-        flash("Response sent successfully.", "success")
-        return redirect(url_for('inbox'))
-    
     # Handle the request logic here
     # For example, you can create a new Request model and save it to the database
     # new_request = Request(user_id=current_user.id, offer_id=offer_id)
     # db.session.add(new_request)
     # db.session.commit()
+    
+    # RESPONSE TO REQUEST 
+    @app.route('/send_response/<int:request_id>', methods=['POST'])
+    @login_required
+    def send_response(request_id):
+        req = Request.query.get_or_404(request_id)
+
+        # Get the response message from the form
+        response_text = request.form.get("response_message", "")
+        
+        # Create the final message as specified
+        final_message = f"Response from {current_user.id} on {req.offer.titel}: {response_text}"
+        
+        # Create and store the Response model instance
+        new_response = Response(
+            user_id=current_user.id,
+            offer_id=req.offer_id,
+            message=final_message,
+            request_id=request_id
+        )
+        db.session.add(new_response)
+        # Mark request as responded
+        req.responded = True
+        db.session.commit()
+        
+        flash("Response sent successfully.", "success")
+        return redirect(url_for('inbox'))
+    
+    # RESPONSE TO RESPONSE (NESTED REPLIES)
+    @app.route('/send_response_reply/<int:response_id>', methods=['POST'])
+    @login_required
+    def send_response_reply(response_id):
+        parent_response = Response.query.get_or_404(response_id)
+        reply_text = request.form.get('reply_message', '')
+        final_message = f"Reply from {current_user.id} to response: {reply_text}"
+        
+        new_reply = Response(
+            user_id=current_user.id,
+            offer_id=parent_response.offer_id,
+            request_id=parent_response.request_id,
+            message=final_message
+            # , parent_response_id=parent_response.id  # If using nested replies
+        )
+        db.session.add(new_reply)
+        # Optionally mark original response (or its request) as responded.
+        req = Request.query.get(parent_response.request_id)
+        if req:
+            req.responded = True
+        db.session.commit()
+        
+        flash("Response reply sent successfully.", "success")
+        return redirect(url_for('inbox'))
 
 
     @app.route('/admin')
@@ -332,12 +356,23 @@ def create_app():
     @app.route('/inbox')
     @login_required
     def inbox():
-    # Fetch incoming request messages for the current user's offers
-        incoming_requests = Request.query.join(OfferList).filter(OfferList.user_id == current_user.id).all()
-    # Hole alle Responses, die zu den Requests des aktuellen Users gehören.
-        incoming_responses = Response.query.join(Request, Response.request_id == Request.id).filter(Request.user_id == current_user.id).all()
-        return render_template('inbox.html', incoming_requests=incoming_requests,
-                            incoming_responses=incoming_responses)
+        # Incoming requests that have not been responded to
+        pending_requests = Request.query.filter_by(user_id=current_user.id, responded=False).all()
+        
+        # Requests that have been responded to (Past Messages)
+        past_requests = Request.query.filter_by(user_id=current_user.id, responded=True).all()
+        # Responses (initial responses to your requests) that don't have a nested reply yet.
+
+        # (Assuming that if a response has a reply then you already responded.)
+        pending_responses = Response.query.join(Request).filter(
+            Request.user_id == current_user.id,
+            Response.parent_response_id.is_(None)
+        ).all()
+
+        return render_template('inbox.html', 
+                            pending_requests=pending_requests,
+                            past_requests=past_requests,
+                            pending_responses=pending_responses)
 
     @app.route('/admin/users')
     @login_required
