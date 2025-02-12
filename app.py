@@ -334,7 +334,10 @@ def create_app():
     def inbox():
     # Fetch incoming request messages for the current user's offers
         incoming_requests = Request.query.join(OfferList).filter(OfferList.user_id == current_user.id).all()
-        return render_template('inbox.html', incoming_requests=incoming_requests)
+    # Hole alle Responses, die zu den Requests des aktuellen Users gehören.
+        incoming_responses = Response.query.join(Request, Response.request_id == Request.id).filter(Request.user_id == current_user.id).all()
+        return render_template('inbox.html', incoming_requests=incoming_requests,
+                            incoming_responses=incoming_responses)
 
     @app.route('/admin/users')
     @login_required

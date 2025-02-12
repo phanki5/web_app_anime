@@ -28,28 +28,51 @@
 
     <!-- Main Content -->
     <div class="flex-1 p-6 flex">
-        <!-- Sidebar -->
-        <div class="w-1/4 bg-gray-800 p-4 rounded-lg shadow-md">
-            <h2 class="text-xl font-bold text-white mb-4">Inbox</h2>
-            <ul>
-                {% for request in incoming_requests %}
-                <li class="mb-2 flex justify-between items-center">
-                    <button onclick="openRequestModal({{ request.id }})" class="w-full text-left bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded">
-                        Request from {{ request.user.username }} on {{ request.offer.titel }}
-                    </button>
-                    <button 
-                        onclick="openResponseModal(this)" 
-                        data-request-id="{{ request.id }}"
-                        data-username="{{ request.user.username }}"
-                        data-offer-title="{{ request.offer.titel }}"
-                        data-message="{{ request.message }}"
-                        class="ml-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
-                        Reply
-                    </button>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+
+    <!-- Sidebar -->
+    <div class="w-1/4 bg-gray-800 p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-white mb-4">Inbox</h2>
+        <ul>
+            <li class="mb-2">
+                <strong>Requests</strong>
+                <ul>
+                    {% for request in incoming_requests %}
+                    <li class="mb-2 flex justify-between items-center">
+                        <button onclick="openRequestModal({{ request.id }})" 
+                                class="w-full text-left bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded">
+                            Request from {{ request.user.username }} on {{ request.offer.titel }}
+                        </button>
+                        <button 
+                            onclick="openResponseModal(this)" 
+                            data-request-id="{{ request.id }}"
+                            data-username="{{ request.user.username }}"
+                            data-offer-title="{{ request.offer.titel }}"
+                            data-offer-price="{{ request.offer.price }}"
+                            data-message="{{ request.message }}"
+                            class="ml-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                            Reply
+                        </button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <li class="mt-4">
+                <strong>Responses</strong>
+                <ul>
+                    {% for response in incoming_responses %}
+                    <li class="mb-2 bg-gray-700 p-2 rounded">
+                        <p class="text-sm">
+                            {{ response.message }}
+                        </p>
+                        <p class="text-xs text-gray-300">
+                            (Response to Request #{{ response.request_id }})
+                        </p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        </ul>
+    </div>>
 
         <!-- Message Content -->
         <div class="flex-1 bg-gray-800 p-4 rounded-lg shadow-md ml-4">

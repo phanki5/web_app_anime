@@ -98,8 +98,13 @@ class Response(db.Model):
     offer_id = db.Column(db.Integer, db.ForeignKey('offer_list.offer_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('request.id'), nullable=False)
+    parent_response_id = db.Column(db.Integer, db.ForeignKey('response.id'), nullable=True)  # For nesting
+
+    # Beziehungen
     user = db.relationship('User', backref=db.backref('response_messages', lazy=True)) 
     offer = db.relationship('OfferList', backref=db.backref('offer_responses', lazy=True))
+    replies = db.relationship('Response',backref=db.backref('parent', remote_side=[id]),
+                              lazy=True)
     
     
 
