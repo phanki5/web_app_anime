@@ -357,10 +357,12 @@ def create_app():
     @login_required
     def inbox():
         # Incoming requests that have not been responded to
-        pending_requests = Request.query.filter_by(user_id=current_user.id, responded=False).all()
+        pending_requests = Request.query.join(OfferList).filter(
+            OfferList.user_id==current_user.id, Request.responded==False).all()
         
         # Requests that have been responded to (Past Messages)
-        past_requests = Request.query.filter_by(user_id=current_user.id, responded=True).all()
+        past_requests = Request.query.join(OfferList).filter(
+            OfferList.user_id==current_user.id, Request.responded==True).all()
         # Responses (initial responses to your requests) that don't have a nested reply yet.
 
         # (Assuming that if a response has a reply then you already responded.)

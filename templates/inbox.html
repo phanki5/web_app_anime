@@ -32,6 +32,7 @@
     <!-- Sidebar -->
     <div class="w-1/4 bg-gray-800 p-4 rounded-lg shadow-md">
         <h2 class="text-xl font-bold text-white mb-4">Inbox</h2>
+
        <!-- Pending Requests -->
         <div class="mb-8">
             <h3 class="text-xl">Pending Requests</h3>
@@ -55,18 +56,52 @@
                 {% endfor %}
             </ul>
         </div>
-        
-        <!-- Past Messages -->
-        <div>
-            <h3 class="text-xl">Past Messages</h3>
+        <!-- Pending Responses -->
+        <div class="mb-8">
+            <h3 class="text-lg">Pending Responses</h3>
             <ul>
-                {% for req in past_requests %}
-                <li class="mb-2 p-2 bg-gray-700 rounded">
-                    <p>{{ req.message }}</p>
-                    <p class="text-sm">(Request responded to)</p>
-                </li>
-                {% endfor %}
+            {% for resp in pending_responses %}
+            <li class="mb-2 p-2 bg-gray-800 rounded flex justify-between items-center">
+                <span>Response on {{ resp.request.offer.titel }} from {{ resp.user.username }}</span>
+                <button 
+                onclick="openResponseReplyModal(this)"
+                data-response-id="{{ resp.id }}"
+                data-username="{{ resp.user.username }}"
+                data-message="{{ resp.message }}"
+                class="bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded">
+                Reply
+                </button>
+            </li>
+            {% endfor %}
             </ul>
+        </div>
+        </div>
+
+        <!-- Past Conversations (Main Area on the Right) -->
+        <div class="flex-1 bg-gray-800 p-4 rounded-lg shadow-md ml-4">
+        <h2 class="text-xl font-bold text-white mb-4">Past Messages</h2>
+        <ul>
+            {% for req in past_requests %}
+            <li class="mb-2 bg-gray-700 p-2 rounded flex justify-between items-center">
+            <span>Request on {{ req.offer.titel }} from {{ req.user.username }}</span>
+            <button onclick="openMessageModal({{ req.id }})" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
+                Open
+            </button>
+            <!-- Hidden conversation content for this request -->
+            <div id="conversation-{{ req.id }}" class="hidden">
+                <p><strong>{{ req.user.username }} (Request):</strong> {{ req.message }}</p>
+                {% for resp in req.responses %}
+                <p><strong>{{ resp.user.username }} (Response):</strong> {{ resp.message.split(':') | last | trim  }}</p>
+                {% if resp.replies %}
+                    {% for rep in resp.replies %}
+                    <p class="ml-4"><strong>{{ rep.user.username }} (Reply):</strong> {{ rep.message }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            </li>
+            {% endfor %}
+        </ul>
         </div>
     </div>
 
@@ -92,8 +127,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Response Reply Modal (for replying to a Response) -->
+    <div id="replyResponseModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl text-black font-bold mb-4">Reply to Response</h2>
+            <div class="flex flex-col h-64">
+                <!-- Upper Half: Display the original response details -->
+                <div id="replyResponseMessageContent" class="flex-1 overflow-auto text-gray-700 mb-4 border-b pb-2">
+                    <!-- Content will be loaded via JS -->
+                </div>
+                <!-- Lower Half: Form for sending your reply -->
+                <div class="flex-1">
+                    <form id="replyResponseForm" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="parent_response_id" id="reply_parent_response_id">
+                        <textarea name="reply_message" id="reply_message" rows="4" class="w-full p-2 border border-gray-300 text-black rounded-md" placeholder="Write your reply here..."></textarea>
+                        <div class="flex justify-end mt-4">
+                            <button type="button" onclick="closeResponseReplyModal()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2">Cancel</button>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Send Reply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Message Modal (Show full conversation) -->
+    <div id="messageModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 class="text-xl text-black font-bold mb-4">Conversation</h2>
+        <div id="conversationContent" class="mb-4 overflow-auto text-black" style="max-height: 300px"></div>
+        <button type="button" onclick="closeMessageModal()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Close</button>
+        </div>
+    </div>
     
     <script>
+        // For replying to a Request
         function openResponseModal(element) {
             const requestId = element.getAttribute('data-request-id');
             const username = element.getAttribute('data-username');
@@ -112,6 +182,36 @@
         }
         function closeResponseModal() {
             document.getElementById('responseModal').classList.add('hidden');
+        }
+
+        // For replying to a Response
+        function openResponseReplyModal(element) {
+        const responseId = element.getAttribute('data-response-id');
+        const username = element.getAttribute('data-username');
+        const message = element.getAttribute('data-message');
+
+        document.getElementById('replyResponseMessageContent').innerHTML = `
+            <h3 class="text-lg font-bold mb-2">Response from ${username}</h3>
+            <p>${message}</p>
+        `;
+        document.getElementById('reply_parent_response_id').value = responseId;
+        document.getElementById('replyResponseForm').action = `/send_response_reply/${responseId}`;
+        document.getElementById('replyResponseModal').classList.remove('hidden');
+        }
+
+        function closeResponseReplyModal() {
+        document.getElementById('replyResponseModal').classList.add('hidden');
+        }
+
+        // For opening a conversation modal
+        function openMessageModal(requestId) {
+        const conversationHTML = document.getElementById('conversation-' + requestId).innerHTML;
+        document.getElementById('conversationContent').innerHTML = conversationHTML;
+        document.getElementById('messageModal').classList.remove('hidden');
+        }
+
+        function closeMessageModal() {
+        document.getElementById('messageModal').classList.add('hidden');
         }
     </script>
 </body>

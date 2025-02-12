@@ -151,6 +151,7 @@
               {% if anime.anime_id in user_bookmarked_ids %}
                 <span style="color: green;">Bookmarked</span>
                 <form action="{{ url_for('bookmark', anime_id=anime.anime_id) }}" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
                     Unbookmark
                   </button>
@@ -158,6 +159,7 @@
               {% else %}
                 <span style="color: red;">Not Bookmarked</span>
                 <form action="{{ url_for('bookmark', anime_id=anime.anime_id) }}" method="POST">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
                     Bookmark
                   </button>
