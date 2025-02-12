@@ -77,31 +77,33 @@
         </div>
         </div>
 
-        <!-- Past Conversations (Main Area on the Right) -->
+       <!-- Past Conversations (Main Area on the Right) -->
         <div class="flex-1 bg-gray-800 p-4 rounded-lg shadow-md ml-4">
-        <h2 class="text-xl font-bold text-white mb-4">Past Messages</h2>
-        <ul>
-            {% for req in past_requests %}
-            <li class="mb-2 bg-gray-700 p-2 rounded flex justify-between items-center">
-            <span>Request on {{ req.offer.titel }} from {{ req.user.username }}</span>
-            <button onclick="openMessageModal({{ req.id }})" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
-                Open
-            </button>
-            <!-- Hidden conversation content for this request -->
-            <div id="conversation-{{ req.id }}" class="hidden">
-                <p><strong>{{ req.user.username }} (Request):</strong> {{ req.message }}</p>
-                {% for resp in req.responses %}
-                <p><strong>{{ resp.user.username }} (Response):</strong> {{ resp.message.split(':') | last | trim  }}</p>
-                {% if resp.replies %}
-                    {% for rep in resp.replies %}
-                    <p class="ml-4"><strong>{{ rep.user.username }} (Reply):</strong> {{ rep.message }}</p>
+            <h2 class="text-xl font-bold text-white mb-4">Past Messages</h2>
+            <ul>
+                {% for req in past_requests %}
+                <li class="mb-2 bg-gray-700 p-2 rounded flex justify-between items-center">
+                <span>Request on {{ req.offer.titel }} from {{ req.user.username }}</span>
+                <button onclick="openMessageModal({{ req.id }})" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
+                    Open
+                </button>
+                <!-- Hidden conversation content for this request -->
+                    <div id="conversation-{{ req.id }}" class="hidden">
+                    <p><strong>{{ req.user.username }} (Request):</strong> {{ req.message }}</p>
+                    {% for resp in req.responses if resp.parent_response_id is none %}
+                        {% if loop.first %}
+                        <p><strong>{{ resp.user.username }} (Response):</strong> {{ resp.message.split(':', 1)[1] | trim }}</p>
+                        {% if resp.replies|length > 0 %}
+                            {% set first_reply = resp.replies[0] %}
+                            {% set reply_text = first_reply.message.split(":", 1)[1] if ":" in first_reply.message else first_reply.message %}
+                            <p class="ml-4"><strong>{{ first_reply.user.username }} (Reply):</strong> {{ reply_text | trim }}</p>
+                        {% endif %}
+                        {% endif %}
                     {% endfor %}
-                {% endif %}
+                </div>
+                </li>
                 {% endfor %}
-            </div>
-            </li>
-            {% endfor %}
-        </ul>
+            </ul>
         </div>
     </div>
 

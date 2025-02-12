@@ -6,7 +6,7 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
 from flask_migrate import Migrate
 import click
-from sqlalchemy import func
+from sqlalchemy import func, and_, or_
 from flask import jsonify
 
 # Lokales db.py (Modelle, Forms, usw.)
@@ -315,26 +315,27 @@ def create_app():
     @login_required
     def send_response_reply(response_id):
         parent_response = Response.query.get_or_404(response_id)
-        reply_text = request.form.get('reply_message', '')
+        reply_text = request.form.get("reply_message", "")
         final_message = f"Reply from {current_user.id} to response: {reply_text}"
         
         new_reply = Response(
             user_id=current_user.id,
             offer_id=parent_response.offer_id,
-            request_id=parent_response.request_id,
-            message=final_message
-            # , parent_response_id=parent_response.id  # If using nested replies
+            message=final_message,
+            request_id=parent_response.request_id,   # attach to the original conversation
+            parent_response_id=parent_response.id       # record the nesting
         )
         db.session.add(new_reply)
-        # Optionally mark original response (or its request) as responded.
-        req = Request.query.get(parent_response.request_id)
-        if req:
-            req.responded = True
-        db.session.commit()
         
+        req = Request.query.get(parent_response.request_id)
+        if req and current_user.id == req.user_id:
+            if not parent_response.replies:  # first nested reply from the requester
+                req.responded = True
+
+        db.session.commit()
         flash("Response reply sent successfully.", "success")
         return redirect(url_for('inbox'))
-
+        
 
     @app.route('/admin')
     @login_required
@@ -361,15 +362,24 @@ def create_app():
             OfferList.user_id==current_user.id, Request.responded==False).all()
         
         # Requests that have been responded to (Past Messages)
-        past_requests = Request.query.join(OfferList).filter(
-            OfferList.user_id==current_user.id, Request.responded==True).all()
-        # Responses (initial responses to your requests) that don't have a nested reply yet.
+        past_requests = Request.query.join(OfferList, isouter=True).filter(
+            Request.responded == True,
+            or_(
+                OfferList.user_id == current_user.id,
+                Request.user_id == current_user.id
+            )
+        ).all()
+        
 
-        # (Assuming that if a response has a reply then you already responded.)
+         # Pending responses: include both initial responses (no parent)
+        # and nested replies meant for the current user (i.e. where the parent response was authored by current user)
+        # Only show initial responses (without a reply) for the requester in pending responses.
         pending_responses = Response.query.join(Request).filter(
             Request.user_id == current_user.id,
+            Request.responded == False,
             Response.parent_response_id.is_(None)
         ).all()
+    
 
         return render_template('inbox.html', 
                             pending_requests=pending_requests,
