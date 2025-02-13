@@ -2,12 +2,15 @@
 from flask import Flask, render_template, url_for, redirect, request, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
+from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from flask_migrate import Migrate
 import click
-from sqlalchemy import func
+from sqlalchemy import func, and_, or_
+from flask import jsonify
 
 # Lokales db.py (Modelle, Forms, usw.)
-from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList
+from db import db, User, RegisterForm, LoginForm, AnimeList, Genre, Bookmark, OfferList, Request, Response
 from db import add_initial_anime_data, add_images_to_anime
 
 # Zusätzliche Form-Klasse für PW-Reset
@@ -33,6 +36,11 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = "login"
+    csrf = CSRFProtect(app)  # Enable CSRF protection
+
+    @app.context_processor
+    def inject_csrf_token():
+        return dict(csrf_token=lambda: generate_csrf())
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -111,9 +119,11 @@ def create_app():
     @login_required
     def marketplace():
         offers = db.session.query(
+        OfferList.offer_id,
         OfferList.titel, 
         OfferList.price, 
-        OfferList.Offer_Type, 
+        OfferList.Offer_Type,
+        OfferList.user_id, 
         AnimeList.image_url
         ).join(AnimeList, OfferList.titel == AnimeList.titel).all()
     
@@ -131,7 +141,7 @@ def create_app():
                 flash('All fields are required!', 'error')
                 return redirect(url_for('marketplace_entry'))
             
-            new_offer = OfferList(titel=anime_name, price=float(price), Offer_Type=offer_type)
+            new_offer = OfferList(titel=anime_name, price=float(price), Offer_Type=offer_type, user_id=current_user.id) # Added user ID here
             db.session.add(new_offer)
             db.session.commit()
             flash('Offer added successfully!', 'success')
@@ -240,6 +250,93 @@ def create_app():
         bookmarked_animes = AnimeList.query.join(Bookmark).filter(Bookmark.user_id == current_user.id).all()
         return render_template('my_bookmarks.html', bookmarked_animes=bookmarked_animes)
 
+    @app.route('/request_offer/<int:offer_id>', methods=['POST'])
+    @login_required
+    def request_offer(offer_id):
+        offer = OfferList.query.get_or_404(offer_id)
+        
+        # Prevent user from requesting their own offer
+        if offer.user_id == current_user.id:
+            flash("You cannot request your own offer.", "danger")
+            return redirect(url_for('marketplace'))
+        
+        message = request.form.get('message')
+        if not message:
+            flash("Message is missing.", "danger")
+            return redirect(url_for('marketplace'))
+        
+        new_request = Request(user_id=current_user.id, offer_id=offer_id, message=message)
+        db.session.add(new_request)
+        
+        try:
+            db.session.commit()
+            flash("Request sent successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Database error.", "danger")
+        
+        return redirect(url_for('marketplace'))
+    
+    # Handle the request logic here
+    # For example, you can create a new Request model and save it to the database
+    # new_request = Request(user_id=current_user.id, offer_id=offer_id)
+    # db.session.add(new_request)
+    # db.session.commit()
+    
+    # RESPONSE TO REQUEST 
+    @app.route('/send_response/<int:request_id>', methods=['POST'])
+    @login_required
+    def send_response(request_id):
+        req = Request.query.get_or_404(request_id)
+
+        # Get the response message from the form
+        response_text = request.form.get("response_message", "")
+        
+        # Create the final message as specified
+        final_message = f"Response from {current_user.id} on {req.offer.titel}: {response_text}"
+        
+        # Create and store the Response model instance
+        new_response = Response(
+            user_id=current_user.id,
+            offer_id=req.offer_id,
+            message=final_message,
+            request_id=request_id
+        )
+        db.session.add(new_response)
+        # Mark request as responded
+        req.responded = True
+        db.session.commit()
+        
+        flash("Response sent successfully.", "success")
+        return redirect(url_for('inbox'))
+    
+    # RESPONSE TO RESPONSE (NESTED REPLIES)
+    @app.route('/send_response_reply/<int:response_id>', methods=['POST'])
+    @login_required
+    def send_response_reply(response_id):
+        parent_response = Response.query.get_or_404(response_id)
+        reply_text = request.form.get("reply_message", "")
+        final_message = f"Reply from {current_user.id} to response: {reply_text}"
+        
+        new_reply = Response(
+            user_id=current_user.id,
+            offer_id=parent_response.offer_id,
+            message=final_message,
+            request_id=parent_response.request_id,   # attach to the original conversation
+            parent_response_id=parent_response.id       # record the nesting
+        )
+        db.session.add(new_reply)
+        
+        req = Request.query.get(parent_response.request_id)
+        if req and current_user.id == req.user_id:
+            if not parent_response.replies:  # first nested reply from the requester
+                req.responded = True
+
+        db.session.commit()
+        flash("Response reply sent successfully.", "success")
+        return redirect(url_for('inbox'))
+        
+
     @app.route('/admin')
     @login_required
     def admin_dashboard():
@@ -256,6 +353,38 @@ def create_app():
             banned_users=banned_users,
             anime_count=anime_count
         )
+
+    @app.route('/inbox')
+    @login_required
+    def inbox():
+        # Incoming requests that have not been responded to
+        pending_requests = Request.query.join(OfferList).filter(
+            OfferList.user_id==current_user.id, Request.responded==False).all()
+        
+        # Requests that have been responded to (Past Messages)
+        past_requests = Request.query.join(OfferList, isouter=True).filter(
+            Request.responded == True,
+            or_(
+                OfferList.user_id == current_user.id,
+                Request.user_id == current_user.id
+            )
+        ).all()
+        
+
+         # Pending responses: include both initial responses (no parent)
+        # and nested replies meant for the current user (i.e. where the parent response was authored by current user)
+        # Only show initial responses (without a reply) for the requester in pending responses.
+        pending_responses = Response.query.join(Request).filter(
+            Request.user_id == current_user.id,
+            Request.responded == False,
+            Response.parent_response_id.is_(None)
+        ).all()
+    
+
+        return render_template('inbox.html', 
+                            pending_requests=pending_requests,
+                            past_requests=past_requests,
+                            pending_responses=pending_responses)
 
     @app.route('/admin/users')
     @login_required

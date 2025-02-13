@@ -73,13 +73,43 @@ class AnimeList(db.Model):
     image_url = db.Column(db.String(255))
     genres = db.relationship('Genre', secondary='anime_genre')
 
+
 class OfferList(db.Model):
-    __tablename__='OfferList'
-    offer_id =db.Column(db.Integer,primary_key=True)
+    __tablename__ = 'offer_list'
+    offer_id = db.Column(db.Integer, primary_key=True)
     titel = db.Column(db.String(150), db.ForeignKey('anime_list.anime_id'), nullable=False)
-    price = db.Column(db.Float,nullable=False)
-    Offer_Type = db.Column(db.String(10),nullable=False)
- 
+    price = db.Column(db.Float, nullable=False)
+    Offer_Type = db.Column(db.String(10), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Request(db.Model):
+    __tablename__ = 'request'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    offer_id = db.Column(db.Integer, db.ForeignKey('offer_list.offer_id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    responded = db.Column(db.Boolean, default=False)  # New flag for whether the request has been responded to
+
+    # Beziehungen
+    user = db.relationship('User', backref=db.backref('requests', lazy=True))
+    offer = db.relationship('OfferList', backref=db.backref('requests', lazy=True))
+    responses = db.relationship('Response', backref='request', lazy=True)
+
+class Response(db.Model):
+    __tablename__ = 'response'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    offer_id = db.Column(db.Integer, db.ForeignKey('offer_list.offer_id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    request_id = db.Column(db.Integer, db.ForeignKey('request.id'), nullable=False)
+    parent_response_id = db.Column(db.Integer, db.ForeignKey('response.id'), nullable=True)  # For nesting
+
+    # Beziehungen
+    user = db.relationship('User', backref=db.backref('response_messages', lazy=True)) 
+    offer = db.relationship('OfferList', backref=db.backref('offer_responses', lazy=True))
+    replies = db.relationship('Response',backref=db.backref('parent', remote_side=[id]), lazy=True)
+    
+    
 
 def add_initial_anime_data(app):
     # Du weißt schon du hättest das einfach alles auf einen txt file schreiben können und dann in die datenbank injecten i mean fuck it it works -Ömer

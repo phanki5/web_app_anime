@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/82c10cb842.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col">
     <!-- Navbar -->
@@ -23,19 +25,15 @@
                       stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
             </svg>
         </button>
+
         <div class="hidden w-full md:block md:w-auto" id="navbar-solid-bg">
-          <ul class="flex flex-col font-medium mt-4 rounded-lg bg-gray-50 
-                     md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 
-                     md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent dark:border-gray-700">
-            <li>
-              <a href="{{ url_for('my_bookmarks') }}" 
-              class="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded
-              md:bg-transparent md:text-blue-700 md:dark:text-blue-500 dark:bg-blue-600 
-              md:dark:bg-transparent" aria-current="page">My Bookmarks
-              </a>
+          <ul class="flex items-center font-medium mt-4 rounded-lg bg-gray-50 
+                    md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 
+                    md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent dark:border-gray-700">
+            
             <li>
               <a href="{{ url_for('animelist') }}" 
-                 class="block py-2 px-3 md:p-0 text-white bg-blue-700 rounded
+                class="h-full flex items-center py-2 px-3 md:p-0 text-white bg-blue-700 rounded
                         md:bg-transparent md:text-blue-700 md:dark:text-blue-500 dark:bg-blue-600 
                         md:dark:bg-transparent" aria-current="page">
                 AnimeList
@@ -43,35 +41,59 @@
             </li>
             <li>
               <a href="{{ url_for('marketplace') }}" 
-                 class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 
+                class="h-full flex items-center py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 
                         md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-white 
                         md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white 
                         md:dark:hover:bg-transparent">
                 Marketplace
               </a>
             </li>
-            <li>
-              <a href="{{ url_for('settings') }}" 
-                 class="block py-2 px-3 md:p-0 text-gray-900 rounded hover:bg-gray-100 
-                        md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-white 
-                        md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white 
-                        md:dark:hover:bg-transparent">
-                Settings
-              </a>
-            </li>
 
-            <!-- Nur anzeigen, wenn current_user.is_admin == True -->
-            {% if current_user.is_admin %}
-              <li>
-                <a href="{{ url_for('admin_users') }}" 
-                   class="block py-2 px-3 md:p-0 text-red-600 font-semibold hover:bg-gray-100 
+            <!-- Icon hrefs -->
+            <div class="flex items-center space-x-4 ml-auto">
+              <!-- Inbox Icon -->
+              <a href="{{ url_for('inbox') }}" class="p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg 
+                        hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white 
+                        focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                  <i class="fa-solid fa-inbox text-black"></i>
+              </a>
+              <!-- Profile Icon -->
+              <a href="{{ url_for('my_bookmarks') }}" class="p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg 
+                        hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white 
+                        focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                  <i class="fa-solid fa-circle-user text-black"></i>
+              </a>
+
+              <!-- Dropdown Menu Button for Settings -->
+              <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownGear" 
+                  class="p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg 
+                        hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white 
+                        focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                  <i class="fa-solid fa-gear"></i>
+              </button>
+          </div>
+          <!-- Dropdown Menu -->
+                <div id="dropdownGear" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600">
+                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuGearButton">
+                    <li>
+                      <a href="{{ url_for('reset_password') }}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Reset password</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Logout</a>
+                    </li>
+                  </ul>
+                  <div class="py-2">
+                   <!-- Nur anzeigen, wenn current_user.is_admin == True -->
+                    {% if current_user.is_admin %}
+                      <li>
+                        <a href="{{ url_for('admin_users') }}" class="block px-4 py-2 text-red-600 font-semibold hover:bg-gray-100 
                           md:hover:bg-transparent md:border-0 md:hover:text-red-700 dark:text-red-400 
                           md:dark:hover:text-red-500 dark:hover:bg-gray-700 dark:hover:text-white 
-                          md:dark:hover:bg-transparent">
-                  Admin Panel
-                </a>
-              </li>
-            {% endif %}
+                          md:dark:hover:bg-transparent">Admin Panel</a>
+                      </li>
+                    {% endif %}
+                  </div>
+              </div>
           </ul>
         </div>
       </div>
@@ -82,5 +104,7 @@
         <h2 class="text-xl font-bold mb-4">Welcome to your Dashboard!</h2>
         <p class="text-gray-700">You are logged in. Use the links in the navigation bar to explore.</p>
     </div>
+    <!-- Script for Dropdown Menu -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </body>
 </html>

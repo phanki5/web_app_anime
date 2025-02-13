@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/82c10cb842.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-900 text-white h-screen flex flex-col">
+    <!-- Navbar  -->
+    <nav class="border-gray-700 bg-gray-800">
+      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <a href="#" class="flex items-center">
+            <span class="text-2xl font-bold text-white">ANIME MARKETPLACE</span>
+        </a>
+        <div class="hidden w-full md:block md:w-auto" id="navbar-solid-bg">
+          <ul class="flex flex-col font-medium mt-4 rounded-lg bg-gray-800 
+                     md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 
+                     md:bg-transparent dark:bg-gray-800 md:dark:bg-transparent dark:border-gray-700">
+            <li>
+              <a href="{{ url_for('dashboard') }}" 
+                class="h-full flex items-center py-2 px-3 md:p-0 text-gray-300 hover:text-white" aria-current="page">
+                Dashboard
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('animelist') }}" 
+                class="h-full flex items-center py-2 px-3 md:p-0 text-gray-300 hover:text-white">
+                AnimeList
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('marketplace') }}" 
+                class="h-full flex items-center py-2 px-3 md:p-0 text-gray-300 hover:text-white">
+                Marketplace
+              </a>
+            </li>
+            <!-- Icon hrefs -->
+            <div class="flex items-center space-x-4 ml-auto">
+                  
+              <!-- Profile Icon -->
+              <a href="{{ url_for('my_bookmarks') }}" class="p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg 
+                        hover:bg-gray-700 focus:ring-4 focus:outline-none text-white 
+                        focus:ring-gray-600 bg-gray-800">
+                  <i class="fa-solid fa-circle-user" style="color: #ffffff;" ></i>
+              </a>
+
+              <!-- Dropdown Menu Button for Settings -->
+              <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownGear" 
+                  class="p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg 
+                        hover:bg-gray-700 focus:ring-4 focus:outline-none text-white 
+                        focus:ring-gray-600 bg-gray-800">
+                  <i class="fa-solid fa-gear" style="color: #ffffff;"></i>
+              </button>
+          </div>
+          <!-- Dropdown Menu -->
+                <div id="dropdownGear" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600">
+                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuGearButton">
+                    <li>
+                      <a href="{{ url_for('reset_password') }}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Reset password</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Logout</a>
+                    </li>
+                  </ul>
+                  <div class="py-2">
+                   <!-- Nur anzeigen, wenn current_user.is_admin == True -->
+                    {% if current_user.is_admin %}
+                      <li>
+                        <a href="{{ url_for('admin_users') }}" class="block px-4 py-2 text-red-600 font-semibold hover:bg-gray-100 
+                          md:hover:bg-transparent md:border-0 md:hover:text-red-700 dark:text-red-400 
+                          md:dark:hover:text-red-500 dark:hover:bg-gray-700 dark:hover:text-white 
+                          md:dark:hover:bg-transparent">Admin Panel</a>
+                      </li>
+                    {% endif %}
+                  </div>
+              </div>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6 flex">
+
+    <!-- Sidebar -->
+    <div class="w-1/4 bg-gray-800 p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-white mb-4">Inbox</h2>
+
+       <!-- Pending Requests -->
+        <div class="mb-8">
+            <h3 class="text-xl">Pending Requests</h3>
+            <ul>
+                {% for req in pending_requests %}
+                <li class="mb-2 p-2 bg-gray-800 rounded flex justify-between items-center">
+                    <span>
+                        Request from {{ req.user.username }} on {{ req.offer.titel }}
+                    </span>
+                    <button 
+                        onclick="openResponseModal(this)" 
+                        data-request-id="{{ req.id }}"
+                        data-username="{{ req.user.username }}"
+                        data-offer-title="{{ req.offer.titel }}"
+                        data-offer-price="{{ req.offer.price }}"
+                        data-message="{{ req.message }}"
+                        class="bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded">
+                        Reply
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <!-- Pending Responses -->
+        <div class="mb-8">
+            <h3 class="text-lg">Pending Responses</h3>
+            <ul>
+            {% for resp in pending_responses %}
+            <li class="mb-2 p-2 bg-gray-800 rounded flex justify-between items-center">
+                <span>Response on {{ resp.request.offer.titel }} from {{ resp.user.username }}</span>
+                <button 
+                onclick="openResponseReplyModal(this)"
+                data-response-id="{{ resp.id }}"
+                data-username="{{ resp.user.username }}"
+                data-message="{{ resp.message }}"
+                class="bg-blue-500 hover:bg-blue-600 py-2 px-4 rounded">
+                Reply
+                </button>
+            </li>
+            {% endfor %}
+            </ul>
+        </div>
+        </div>
+
+       <!-- Past Conversations (Main Area on the Right) -->
+        <div class="flex-1 bg-gray-800 p-4 rounded-lg shadow-md ml-4">
+            <h2 class="text-xl font-bold text-white mb-4">Past Messages</h2>
+            <ul>
+                {% for req in past_requests %}
+                <li class="mb-2 bg-gray-700 p-2 rounded flex justify-between items-center">
+                <span>Request on {{ req.offer.titel }} from {{ req.user.username }}</span>
+                <button onclick="openMessageModal({{ req.id }})" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded">
+                    Open
+                </button>
+                <!-- Hidden conversation content for this request -->
+                    <div id="conversation-{{ req.id }}" class="hidden">
+                    <p><strong>{{ req.user.username }} (Request):</strong> {{ req.message }}</p>
+                    {% for resp in req.responses if resp.parent_response_id is none %}
+                        {% if loop.first %}
+                        <p><strong>{{ resp.user.username }} (Response):</strong> {{ resp.message.split(':', 1)[1] | trim }}</p>
+                        {% if resp.replies|length > 0 %}
+                            {% set first_reply = resp.replies[0] %}
+                            {% set reply_text = first_reply.message.split(":", 1)[1] if ":" in first_reply.message else first_reply.message %}
+                            <p class="ml-4"><strong>{{ first_reply.user.username }} (Reply):</strong> {{ reply_text | trim }}</p>
+                        {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Response Modal (for replying to requests as shown earlier) -->
+    <div id="responseModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl text-black font-bold mb-4">Respond to Request</h2>
+            <div class="flex flex-col h-64">
+                <!-- Upper Half: Display original request message -->
+                <div id="responseRequestMessageContent" class="flex-1 overflow-auto text-gray-700 mb-4 border-b pb-2"></div>
+                <!-- Lower Half: Form to send your response -->
+                <div class="flex-1">
+                    <form id="responseForm" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="request_id" id="response_request_id">
+                        <textarea name="response_message" id="response_message" rows="4" class="w-full p-2 border border-gray-300 text-black rounded-md" placeholder="Write your response here..."></textarea>
+                        <div class="flex justify-end mt-4">
+                            <button type="button" onclick="closeResponseModal()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2">Cancel</button>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Send Response</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Response Reply Modal (for replying to a Response) -->
+    <div id="replyResponseModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl text-black font-bold mb-4">Reply to Response</h2>
+            <div class="flex flex-col h-64">
+                <!-- Upper Half: Display the original response details -->
+                <div id="replyResponseMessageContent" class="flex-1 overflow-auto text-gray-700 mb-4 border-b pb-2">
+                    <!-- Content will be loaded via JS -->
+                </div>
+                <!-- Lower Half: Form for sending your reply -->
+                <div class="flex-1">
+                    <form id="replyResponseForm" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="parent_response_id" id="reply_parent_response_id">
+                        <textarea name="reply_message" id="reply_message" rows="4" class="w-full p-2 border border-gray-300 text-black rounded-md" placeholder="Write your reply here..."></textarea>
+                        <div class="flex justify-end mt-4">
+                            <button type="button" onclick="closeResponseReplyModal()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2">Cancel</button>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Send Reply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Message Modal (Show full conversation) -->
+    <div id="messageModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 class="text-xl text-black font-bold mb-4">Conversation</h2>
+        <div id="conversationContent" class="mb-4 overflow-auto text-black" style="max-height: 300px"></div>
+        <button type="button" onclick="closeMessageModal()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        // For replying to a Request
+        function openResponseModal(element) {
+            const requestId = element.getAttribute('data-request-id');
+            const username = element.getAttribute('data-username');
+            const offerTitle = element.getAttribute('data-offer-title');
+            const message = element.getAttribute('data-message');
+
+            document.getElementById('responseRequestMessageContent').innerHTML = `
+                <h3 class="text-lg font-bold mb-2">Request from ${username}</h3>
+                <p>Offer: ${offerTitle}</p>
+                <p>Price: €${element.getAttribute('data-offer-price')}</p>
+                <p>${message}</p>
+            `;
+            document.getElementById('response_request_id').value = requestId;
+            document.getElementById('responseForm').action = `/send_response/${requestId}`;
+            document.getElementById('responseModal').classList.remove('hidden');
+        }
+        function closeResponseModal() {
+            document.getElementById('responseModal').classList.add('hidden');
+        }
+
+        // For replying to a Response
+        function openResponseReplyModal(element) {
+        const responseId = element.getAttribute('data-response-id');
+        const username = element.getAttribute('data-username');
+        const message = element.getAttribute('data-message');
+
+        document.getElementById('replyResponseMessageContent').innerHTML = `
+            <h3 class="text-lg font-bold mb-2">Response from ${username}</h3>
+            <p>${message}</p>
+        `;
+        document.getElementById('reply_parent_response_id').value = responseId;
+        document.getElementById('replyResponseForm').action = `/send_response_reply/${responseId}`;
+        document.getElementById('replyResponseModal').classList.remove('hidden');
+        }
+
+        function closeResponseReplyModal() {
+        document.getElementById('replyResponseModal').classList.add('hidden');
+        }
+
+        // For opening a conversation modal
+        function openMessageModal(requestId) {
+        const conversationHTML = document.getElementById('conversation-' + requestId).innerHTML;
+        document.getElementById('conversationContent').innerHTML = conversationHTML;
+        document.getElementById('messageModal').classList.remove('hidden');
+        }
+
+        function closeMessageModal() {
+        document.getElementById('messageModal').classList.add('hidden');
+        }
+    </script>
+    <!-- Script for Dropdown Menu -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+</body>
+</html>
