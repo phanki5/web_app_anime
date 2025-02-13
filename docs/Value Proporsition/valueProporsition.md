@@ -37,4 +37,24 @@ By catering to these user segments, AnimeHub creates an inclusive space where ev
 
 ## Customer Journey
 
-
+1. Registration
+2. Login
+3. Dashboard
+    - Navigations-Bar
+4. Checkout Anime List
+    - Search through the List 
+    - Bookmark/ Unbookmark animes
+5. Profil
+    - Find Bookmarked animes
+6. Marketplace
+    - Check offers
+    - Create offers
+    - Send Request
+7. Inbox
+    - Receive Messages (Request/ Response)
+    - Select conversation
+    - Reply
+    - Finishes the conversation
+8. Settings
+    - Reset Password
+    - Logut
