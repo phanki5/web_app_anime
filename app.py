@@ -293,7 +293,7 @@ def create_app():
         response_text = request.form.get("response_message", "")
         
         # Create the final message as specified
-        final_message = f"Response from {current_user.id} on {req.offer.titel}: {response_text}"
+        final_message = response_text
         
         # Create and store the Response model instance
         new_response = Response(
@@ -308,15 +308,16 @@ def create_app():
         db.session.commit()
         
         flash("Response sent successfully.", "success")
-        return redirect(url_for('inbox'))
+        return redirect(url_for('inbox', selected_req_id=request_id))
     
-    # RESPONSE TO RESPONSE (NESTED REPLIES)
+    # RESPONSE TO RESPONSE (NESTED REPLIES) 
     @app.route('/send_response_reply/<int:response_id>', methods=['POST'])
     @login_required
     def send_response_reply(response_id):
         parent_response = Response.query.get_or_404(response_id)
         reply_text = request.form.get("reply_message", "")
-        final_message = f"Reply from {current_user.id} to response: {reply_text}"
+        final_message = reply_text
+
         
         new_reply = Response(
             user_id=current_user.id,

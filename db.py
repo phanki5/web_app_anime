@@ -74,13 +74,17 @@ class AnimeList(db.Model):
     genres = db.relationship('Genre', secondary='anime_genre')
 
 
+# db.py – OfferList Modell
 class OfferList(db.Model):
     __tablename__ = 'offer_list'
     offer_id = db.Column(db.Integer, primary_key=True)
-    titel = db.Column(db.String(150), db.ForeignKey('anime_list.anime_id'), nullable=False)
+    titel = db.Column(db.String(150), db.ForeignKey('anime_list.titel'), nullable=False)
     price = db.Column(db.Float, nullable=False)
     Offer_Type = db.Column(db.String(10), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # Relationship, um das zugehörige Anime-Objekt (inklusive image_url) zu laden
+    anime = db.relationship('AnimeList', backref='offers', uselist=False)
+
 
 class Request(db.Model):
     __tablename__ = 'request'

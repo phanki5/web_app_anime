@@ -32,3 +32,11 @@ Sortierungs Logik + Frontend Animelist mit Tailwind + Admin Logik
 Bilder einfügen über API Key in Datenbank
 7. [https://chatgpt.com/c/67856f0a-4104-8012-8642-e986d79bd6d0]
 Bookmark + my bookmark seite + read more funktion + such funktion + routes( das letze mal das ich chatgpt benutze)
+
+https://freefrontend.com/tailwind-chats/
+
+https://chatgpt.com/c/67ae3642-ebdc-8012-9ff7-7ba67b80dd17
+neue frontend für inbox und bisschen error handling
+
+https://chatgpt.com/c/67ae4189-3b7c-8012-a45a-d1185ff34b02
+error handling
