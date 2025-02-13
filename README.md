@@ -47,6 +47,14 @@ Flask init-db
 
 ```
 
+### Admin Account erstellen
+
+In Terminal
+```bash
+Flask create-admin myadmin mysecurepassword
+
+```
+
 
 ### Run AnimeHub
 

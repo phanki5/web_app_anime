@@ -17,6 +17,12 @@ permalink: /toDo/
 - [x] **Rollen-Management:** Implementieren von Benutzerrollen (z. B. Nutzer, Moderator, Admin)
 - [x] **Passwort-Reset:** Logik für Passwortzurücksetzung erstellen
 - [x] Admin-Dashboard gestalten und mit Backend verknüpfen
+- [x] **Login/Register-Page Optimieren** Passendes Design
+- [x] **Bilder zu Anime namen** 
+- [x] **Read more button**
+- [x] **Anime checkliste / Tracker**
+- [x] **Such funktion**
+- [x] **Nächste Seite**
 
 ## 🟡 Offene Aufgaben
 
@@ -30,13 +36,7 @@ permalink: /toDo/
 ### 🎨 Frontend
 - [x] **Frontend-Integration:** 
   - Design-Optimierungen für Benutzerfreundlichkeit
-- [] **Back button fehlt beim AdminPanel**
+- [x] **Back button fehlt beim AdminPanel**
 
 ## 🟢 Geplante Aufgaben
-- [x] **Login/Register-Page Optimieren** Passendes Design
-- [ ] **Marketplace**
-- [x] **Bilder zu Anime namen** 
-- [ ] **Read more button**
-- [ ] **Anime checkliste / Tracker**
-- [ ] **Such funktion**
-- [ ] **Nächste Seite**
+
