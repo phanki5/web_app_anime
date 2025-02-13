@@ -265,7 +265,7 @@ def create_app():
             flash("Message is missing.", "danger")
             return redirect(url_for('marketplace'))
         
-        new_request = Request(user_id=current_user.id, offer_id=offer_id, message=message)
+        new_request = Request(user_id=current_user.id, offer_id=offer_id, message=message, responded=True)
         db.session.add(new_request)
         
         try:
@@ -305,6 +305,7 @@ def create_app():
         db.session.add(new_response)
         # Mark request as responded
         req.responded = True
+        db.session.add(req)
         db.session.commit()
         
         flash("Response sent successfully.", "success")
