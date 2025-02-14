@@ -5,7 +5,7 @@ nav_order: 5
 permalink: /toDo/
 ---
 
-# 🛠️ Projekt: AnimeHub To-Do List
+# 🛠️ Projekt: AnimeHub To-Do List Ömer
 
 ## ✅ Erledigte Aufgaben
 - [x] **Login und Register:** Funktionalität fertiggestellt
