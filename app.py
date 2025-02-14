@@ -125,10 +125,24 @@ def create_app():
         OfferList.Offer_Type,
         OfferList.user_id, 
         AnimeList.image_url
-        ).join(AnimeList, OfferList.titel == AnimeList.titel).all()
+        ).join(AnimeList, OfferList.titel == AnimeList.titel).filter(OfferList.hidden == False).all()
     
         return render_template('marketplace.html', offers=offers)
-    
+
+    @app.route('/hide_offer/<int:offer_id>', methods=['POST'])
+    @login_required
+    def hide_offer(offer_id):
+        offer = OfferList.query.get_or_404(offer_id)
+
+    # Prüfen, ob der Benutzer Admin oder der Besitzer des Angebots ist
+        if current_user.is_admin or offer.user_id == current_user.id:
+            print(f"Verstecke Angebot mit ID {offer_id}") 
+            offer.hidden = True
+            db.session.commit()
+            return jsonify({"message": "Offer hidden successfully"}), 200
+
+        return jsonify({"error": "Unauthorized"}), 403
+
     @app.route('/marketplace_entry', methods=['GET', 'POST'])
     @login_required
     def marketplace_entry():
