@@ -2,7 +2,7 @@
 layout: default
 title: "User Evaluation"
 nav_order: 3
-permalink: /user-evaluation/
+
 ---
 
 # User Evaluation

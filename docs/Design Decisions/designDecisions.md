@@ -1,8 +1,8 @@
 ---
 layout: default
 title: "Design Decisions"
-parent: "Documentation"
-nav_order: 2
+parent: "AnimeMarketPlace"
+nav_order: 1
 ---
 # **Designentscheidungen für die App**
 
