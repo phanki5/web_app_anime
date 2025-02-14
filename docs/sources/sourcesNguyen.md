@@ -5,7 +5,6 @@ parent: "Sources"
 nav_order: 2
 permalink: /sourcesNguyen/
 ---
-
 CSS Quellen:
 CSS Style sheet:
 https://flowbite.com/docs/components/navbar/ -solid background
