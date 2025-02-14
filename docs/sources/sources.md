@@ -1,7 +1,9 @@
 ---
 layout: default
-title: Sources
-nav_order: 5
+title: "Sources"
+parent: "AnimeMarketPlace"
+nav_order: 7
+has_children: true
 permalink: /sources/
 ---
 

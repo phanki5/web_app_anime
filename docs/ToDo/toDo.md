@@ -1,7 +1,8 @@
 ---
 layout: default
-title: ToDoListOemer
-nav_order: 5
+title: "To-Do (Ömer)"
+parent: "AnimeMarketPlace"
+nav_order: 4
 permalink: /toDo/
 ---
 

@@ -1,7 +1,8 @@
 ---
 layout: default
-title: Value Proposition
-nav_order: 4
+title: "User Evaluation"
+parent: "AnimeMarketPlace"
+nav_order: 5
 permalink: /user-evaluation/
 ---
 

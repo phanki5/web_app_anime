@@ -1,6 +1,8 @@
 ---
-title: Value Proposition
-nav_order: 2
+layout: default
+title: "Value Proposition"
+parent: "AnimeMarketPlace"
+nav_order: 6
 ---
 
 # Value proposition
