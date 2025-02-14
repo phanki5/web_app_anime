@@ -2,7 +2,7 @@
 layout: default
 title: "Datenmodell"
 parent: "AnimeMarketPlace"
-nav_order: 3
+nav_order: 6
 ---
 
 ## Datenbankmodell (Mermaid-Diagramm)

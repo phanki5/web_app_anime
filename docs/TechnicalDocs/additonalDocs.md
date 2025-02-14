@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Value Proposition
-nav_order: 4
-permalink: /user-evaluation/
+title: "Additional Docs"
+nav_order: 7
+
 ---
 # Additional Documentation
 Since we decided to use JS in some places to enhance the WebApp. We will eplain the uses in this section

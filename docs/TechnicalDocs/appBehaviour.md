@@ -1,8 +1,7 @@
 ---
 layout: default
-title: Value Proposition
-nav_order: 4
-permalink: /user-evaluation/
+title: "App Behaviour"
+nav_order: 5
 ---
 
 # App Behaviour
