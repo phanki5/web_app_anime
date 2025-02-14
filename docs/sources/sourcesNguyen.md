@@ -2,7 +2,7 @@
 layout: default
 title: Sources
 nav_order: 5
-permalink: /sources/
+permalink: /sourcesNguyen/
 ---
 CSS Quellen:
 CSS Style sheet:
