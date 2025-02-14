@@ -2,7 +2,7 @@
 layout: default
 title: "User Evaluation"
 parent: "AnimeMarketPlace"
-nav_order: 5
+nav_order: 8
 permalink: /user-evaluation/
 ---
 
