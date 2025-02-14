@@ -11,10 +11,12 @@ In this chapter, I will be disclosing all of my sources and LLM prompts.
 
 1. [https://www.youtube.com/watch?v=71EU8gnZqZQ]
 2. [https://github.com/hwrberlin/fswd-app/tree/main]
+3. [https://www.youtube.com/watch?v=xxkDLvS5MTY]
+4. [https://www.youtube.com/watch?v=ytNyibPQFhw]
+5. [https://www.youtube.com/watch?v=AMp6hlA8xKA]
 
 
-
-#CSS animated background
+#CSS animated background + Tailwind Inspiration 
 
 1. [https://tailwindflex.com/@anonymous/background-animation]
 2. [https://freefrontend.com/tailwind-chats/] Inspiriert davon
