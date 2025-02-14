@@ -2,7 +2,7 @@
 layout: default
 title: "App Structure"
 parent: "AnimeMarketPlace"
-nav_order: 4
+nav_order: 2
 ---
 
 ## Ordner und Dateien

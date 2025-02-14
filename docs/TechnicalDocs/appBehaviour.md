@@ -1,7 +1,8 @@
 ---
 layout: default
 title: "App Behaviour"
-nav_order: 5
+parent: "AnimeMarketPlace"
+nav_order: 3
 ---
 
 # App Behaviour

@@ -1,7 +1,6 @@
 ---
 layout: default
 title: "Value Proposition"
-parent: "AnimeMarketPlace"
 nav_order: 2
 ---
 

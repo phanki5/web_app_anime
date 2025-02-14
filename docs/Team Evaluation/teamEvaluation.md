@@ -1,8 +1,7 @@
 ---
 layout: default
-title: Value Proposition
+title: "Team Evaluation"
 nav_order: 4
-permalink: /user-evaluation/
 ---
 
 **Goals**
