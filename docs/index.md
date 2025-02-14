@@ -20,13 +20,30 @@ About: [GitHub](https://github.com/link-to-your-repo)
 
 ## Dokumentation
 
-### Projektübersicht
-- [Technische Dokumentation](./TechnicalDocs/technicalDocs.md)
-- [Design-Entscheidungen](./Design%20Decisions/designDecisions.md)
-- [To-Do Liste Ömer](./ToDo/toDo.md)
-- [User Evaluation](./User%20Evaluation/userEvaluation.md)
-- [Value Proposition](./Value%20Proporsition/valueProporsition.md)
-- [Sources Ömer](./sources/sourcesOemer.md)
+1. **Technische Dokumentation**  
+   - [Übersicht](./TechnicalDocs/technicalDocs.md)  
+   - [App Structure](./TechnicalDocs/appStructure.md)  
+   - [Datenmodell](./TechnicalDocs/datenModell.md)
+
+2. **Design-Entscheidungen**  
+   - [Design Decisions](./Design%20Decisions/designDecisions.md)  
+  
+
+3. **To-Do Liste (Ömer)**  
+   - [To-Do](./ToDo/toDo.md)
+
+4. **User Evaluation**  
+   - [User Evaluation](./User%20Evaluation/userEvaluation.md)
+
+5. **Value Proposition**  
+   - [Value Proposition](./Value%20Proporsition/valueProporsition.md)
+
+
+6. **Sources**  
+   - [Übersicht (alle Quellen)](./sources/sources.md)  
+   - [Sources (Nguyen)](./sources/sourcesNguyen.md)  
+   - [Sources (Förster)](./sources/sourcesFoerster.md)  
+   - [Sources (Oemer)](./sources/sourcesOemer.md)
 
 ---
 
