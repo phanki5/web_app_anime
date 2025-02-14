@@ -1,11 +1,10 @@
 ---
 layout: default
-title: Sources
-nav_order: 5
+title: "Sources (Nguyen)"
+parent: "Sources"
+nav_order: 2
 permalink: /sourcesNguyen/
 ---
-# Sources
-
 CSS Quellen:
 CSS Style sheet:
 https://flowbite.com/docs/components/navbar/ -solid background

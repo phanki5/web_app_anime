@@ -1,3 +1,9 @@
+---
+layout: default
+title: "App Structure"
+parent: "AnimeMarketPlace"
+nav_order: 2
+---
 
 ## Ordner und Dateien
 

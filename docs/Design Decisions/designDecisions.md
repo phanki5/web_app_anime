@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Design decisions
+title: "Design Decisions"
+parent: "Documentation"
 nav_order: 2
-permalink: /design-decisions/
 ---
 # **Designentscheidungen für die App**
 

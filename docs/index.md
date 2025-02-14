@@ -1,9 +1,10 @@
 ---
 layout: default
-title: AnimeMarketPlace
-nav_order: 0
+title: "AnimeMarketPlace"
+nav_order: 1
 description: "Anime for everyone"
 permalink: /
+has_children: true
 ---
 
 # AnimeMarketPlace

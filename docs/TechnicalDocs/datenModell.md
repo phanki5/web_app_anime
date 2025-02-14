@@ -1,3 +1,10 @@
+---
+layout: default
+title: "Datenmodell"
+parent: "AnimeMarketPlace"
+nav_order: 3
+---
+
 ## Datenbankmodell (Mermaid-Diagramm)
 
 Nachfolgend eine komprimierte Version des Modells ohne HTML-Anmerkungen, damit das Diagramm fehlerfrei gerendert werden kann:

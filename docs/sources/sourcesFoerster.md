@@ -1,7 +1,8 @@
 ---
 layout: default
-title: Sources
-nav_order: 5
+title: "Sources (Förster)"
+parent: "Sources"
+nav_order: 1
 permalink: /sourcesFoerster/
 ---
 
