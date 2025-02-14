@@ -82,6 +82,7 @@ class OfferList(db.Model):
     price = db.Column(db.Float, nullable=False)
     Offer_Type = db.Column(db.String(10), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    hidden = db.Column(db.Boolean, default=False) 
     # Relationship, um das zugehörige Anime-Objekt (inklusive image_url) zu laden
     anime = db.relationship('AnimeList', backref='offers', uselist=False)
 
