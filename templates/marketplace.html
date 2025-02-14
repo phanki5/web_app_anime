@@ -91,17 +91,50 @@
         <!-- Offer Listings -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for offer in offers %}
-            <div class="bg-gray-800 p-4 rounded-lg s hadow-md  relative">
-                <img src="{{ offer.image_url }}" alt="{{ offer.titel }}" class="w-full h-48 object-cover rounded-md">
-                <h3 class="text-lg font-bold mt-2 text-white">{{ offer.titel }}</h3>
-                <p class="text-gray-400">Price: €{{ offer.price }}</p>
-                <p class="text-gray-300">Offer Type: <span class="font-semibold">{{ offer.Offer_Type }}</span></p>
-                {% if offer.user_id != current_user.id %}
-                <button onclick="openModal({{ offer.offer_id }})" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded absolute bottom-4 right-4">Request</button>
-                {% endif %}
-            </div>
-            {% endfor %}
+            <div class="bg-gray-800 p-4 rounded-lg shadow-md relative">
+              <img src="{{ offer.image_url }}" alt="{{ offer.titel }}" class="w-full h-48 object-cover rounded-md">
+              <h3 class="text-lg font-bold mt-2 text-white">{{ offer.titel }}</h3>
+              <p class="text-gray-400">Price: €{{ offer.price }}</p>
+              <p class="text-gray-300">Offer Type: <span class="font-semibold">{{ offer.Offer_Type }}</span></p>
+    
+              {% if offer.user_id != current_user.id %}
+              <button onclick="openModal({{ offer.offer_id }})" 
+                      class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded absolute bottom-4 right-4">
+                 Request
+            </button>
+            {% endif %}
+
+          {% if current_user.is_admin or offer.user_id == current_user.id %}
+          <button onclick="hideOffer({{ offer.offer_id }})"
+                  class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded absolute top-4 right-4">
+            Delete Offer
+          </button>
+          {% endif %}
         </div>
+        {% endfor %}
+
+        <script>
+    function hideOffer(offerId) {
+        fetch(`/hide_offer/${offerId}`, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token() }}"  // CSRF-Token einfügen
+            },
+            credentials: "same-origin" // Wichtig für Authentifizierung
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                console.log("Erfolgreich versteckt:", data.message);
+                location.reload(); // Seite neu laden
+            } else {
+                console.error("Fehler:", data.error);
+            }
+        })
+        .catch(error => console.error("Fetch-Fehler:", error));
+    }
+</script>
     </div>
 
 
