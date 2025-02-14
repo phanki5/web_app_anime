@@ -14,6 +14,8 @@ Angebotserstellung
 2.https://chatgpt.com/c/67a64599-d86c-8010-9b06-7721471eca66
 Anime Daten Eintragung
 3.https://chatgpt.com/c/674745d6-32dc-8010-bc50-5cb27896b24a
+Hidden Button
+4.https://chatgpt.com/c/67aef21c-0938-8010-bab6-1a066c50beea
 
 #Claude Prompts
 Anime Daten Eintragung
