@@ -42,3 +42,6 @@ LLM Quellen (ChatGpt):
 
 Github Copilot:
 GitHub-Copilot Prompts und Lösungen.docx (Datei im Repo)
+    -mainly used for the design of the wesite, nav-bar functionality, front-/backend of the communication aspect of the
+     Anime Marketplace (MVP)
+     
