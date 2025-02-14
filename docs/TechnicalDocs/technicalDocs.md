@@ -17,12 +17,13 @@ Aktualisiert: 13.02.2025
 3. [Authentifizierung und Autorisierung](#2-authentifizierung-und-autorisierung)  
 4. [Ban-Funktion](#3-ban-funktion)  
 5. [Funktionalitäten](#4-funktionalitäten)  
-   - [Marketplace](#marketplace)  
+   - [Marketplace](#marketplace)
+   - [Hide Funktion](#hide-funktion)  
    - [Request und Response (Nachrichtensystem)](#request-und-response-nachrichtensystem)  
    - [Bookmarks](#bookmarks)  
    - [Admin-Dashboard](#admin-dashboard)  
    - [Passwort-Zurücksetzen (Settings)](#passwort-zurücksetzen-settings)  
-   - [Inbox](#inbox)  
+   - [Inbox](#inbox) 
 6. [Erweiterungen und Fixes](#5-erweiterungen-und-fixes)  
    - [Bilderintegration](#bilderintegration)  
    - [Vermeidung doppelter Einträge](#vermeidung-doppelter-einträge)  
@@ -260,6 +261,25 @@ Ein Kernbereich der Anwendung ist der Marketplace, wo Angebote eingestellt werde
 
     return render_template("marketplace_entry.html")
   ```
+
+### Hide Funktion
+Um den Marktplatz aktuell zu halten und nicht jede menge schon abgeschlossene Angebote aufgelistet zu haben gibt es auch die Funktion mit dem Button "Delete Offer" welcher dafür sorgt das ein abgeschlossenes Angebot nicht weiter angezeigt wird 
+```python
+### Code beispiel
+    @app.route('/hide_offer/<int:offer_id>', methods=['POST'])
+    @login_required
+    def hide_offer(offer_id):
+        offer = OfferList.query.get_or_404(offer_id)
+
+    # Prüfen, ob der Benutzer Admin oder der Besitzer des Angebots ist
+        if current_user.is_admin or offer.user_id == current_user.id:
+            print(f"Verstecke Angebot mit ID {offer_id}") 
+            offer.hidden = True
+            db.session.commit()
+            return jsonify({"message": "Offer hidden successfully"}), 200
+
+        return jsonify({"error": "Unauthorized"}), 403
+```
 
 ### Request und Response (Nachrichtensystem)
 
